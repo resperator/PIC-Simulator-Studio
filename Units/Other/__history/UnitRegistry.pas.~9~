@@ -1,0 +1,239 @@
+unit UnitRegistry;
+
+
+interface
+uses Registry, windows,ShlObj,IoUtils,System.Types;
+
+procedure WriteBool(id:integer; value:boolean);
+Function ReadBool(id:integer):boolean;
+function GetSpecialPath(CSIDL: word): string;
+function SearchFiles(const Path,SearchPattern:String;LookInSubFolders:boolean):TStringDynArray;
+
+const
+rg_COMPANY='AT-Control';
+rg_APPNAME='ATCSS1';
+
+rg_Check_updates_on_startup=0; //Проверять ли обновления при запуске программы
+
+var
+v_Root_Key_current_user:Boolean;
+v_Key_Path:string;
+v_Key_Name:string;
+V_Def_Val_Bool:boolean;
+const
+
+  // Следующие идентификаторы имеются в модуле ShlObj:
+  CSIDL_DESKTOP                       = $0000;
+  // Виртуальный каталог, представляющий Рабочий стол. (Корень в проводнике)
+  CSIDL_INTERNET                      = $0001;
+  // Виртуальный каталог для Internet Explorer.
+  CSIDL_PROGRAMS                      = $0002;
+  // Меню Пуск -> Программы
+  CSIDL_CONTROLS                      = $0003;
+  // Виртуальный каталог, содержащий иконки пунктов панели управления
+  CSIDL_PRINTERS                      = $0004;
+  // Виртуальный каталог, содержащий установленные принтеры
+  CSIDL_PERSONAL                      = $0005;
+  // Виртуальный каталог, представляющий папку "Мои документы"
+  // До Vista ссылался на какталог "Мои документы" на жёстком диске
+  CSIDL_FAVORITES                     = $0006;
+  // Избранное. (обычно C:\Documents and Settings\username\Favorites)
+  CSIDL_STARTUP                       = $0007;
+  // Пуск -> Программы -> Автозагрузка
+  CSIDL_RECENT                        = $0008;
+  // Недавние документы (обычно C:\Documents and Settings\username\My Recent Documents
+  // Для добавления ссылки документа используйте SHAddToRecentDocs
+  CSIDL_SENDTO                        = $0009;
+  // Папка, содержащая ярлыки меню "Отправить" (Sent to...) (обычно C:\Documents and Settings\username\SendTo)
+  CSIDL_BITBUCKET                     = $000a;
+  // Виртуальный каталог, содержащий файлы в корзине текущего пользователя
+  CSIDL_STARTMENU                     = $000b;
+  // Элементы меню Пуск текущего пользователя (обычно C:\Documents and Settings\username\Start Menu)
+  CSIDL_DESKTOPDIRECTORY              = $0010;
+  // Рабочий стол текущего пользователя (обычно C:\Documents and Settings\username\Desktop)
+  CSIDL_DRIVES                        = $0011;
+  // Виртуальный каталог, представляющий папку "Мой компьютер"
+  CSIDL_NETWORK                       = $0012;
+  // Виртуальный каталог, представляющий "Сетевое окружение"
+  CSIDL_NETHOOD                       = $0013;
+  // Папка "My Nethood Places" (обычно C:\Documents and Settings\username\NetHood)
+  // В неё ссылки на избранные расшаренные ресурсы
+  CSIDL_FONTS                         = $0014;
+  // Папка, содержащая установленные шрифты. (обычно C:\Windows\Fonts)
+  CSIDL_TEMPLATES                     = $0015;
+  // Шаблоны документов. (Обычно Settings\username\Templates)
+  CSIDL_COMMON_STARTMENU              = $0016;
+  // Элементы меню Пуск для всех пользователей. (обычно C:\Documents and Settings\All Users\Start Menu)
+  // Константы, начинающиеся на CSIDL_COMMON_ существуют только в NT версиях
+  CSIDL_COMMON_PROGRAMS               = $0017;
+  // Меню Пуск -> программы для всех пользователей (обычно C:\Documents and Settings\All Users\Start Menu\Programs)
+  CSIDL_COMMON_STARTUP                = $0018;
+  // Меню Пуск -> Программы -> Автозагрузка для всех пользователей (обычно C:\Documents and Settings\All Users\Start Menu\Programs\Startup)
+  CSIDL_COMMON_DESKTOPDIRECTORY       = $0019;
+  // Элементы Рабочего стола для всех пользователей (обычно C:\Documents and Settings\All Users\Desktop)
+  CSIDL_APPDATA                       = $001a;
+  // Папка, в которой рограммы должны хранить свои данные(C:\Documents and Settings\username\Application Data)
+  CSIDL_PRINTHOOD                     = $001b;
+  // Установленные принтеры. (обычно C:\Documents and Settings\username\PrintHood)
+  CSIDL_ALTSTARTUP                = $001d;         // DBCS
+  // user's nonlocalized Startup program group. Устарело.
+  CSIDL_COMMON_ALTSTARTUP         = $001e;         // DBCS
+  // Устарело
+  CSIDL_COMMON_FAVORITES          = $001f;
+  // Ссылки "Избранное" для всех пользователей
+  CSIDL_INTERNET_CACHE            = $0020;
+  // Временные Internet файлы (обычно C:\Documents and Settings\username\Local Settings\Temporary Internet Files)
+  CSIDL_COOKIES                   = $0021;
+  // Папка для хранения Cookies (обычно C:\Documents and Settings\username\Cookies)
+  CSIDL_HISTORY                   = $0022;
+  // Хранит ссылки интернет истории IE
+
+  // Следующих идентификаторов нет в ShlObj:
+  CSIDL_ADMINTOOLS                = $30;
+  // Административные инструменты текущего пользователя (например консоль MMC). Win2000+
+
+  CSIDL_CDBURN_AREA               = $3b;
+  // Папка для файлов, подготовленных к записи на CD/DVD
+  // (Обычно C:\Documents and Settings\username\Local Settings\Application Data\Microsoft\CD Burning)
+
+  CSIDL_COMMON_ADMINTOOLS         = $2f;
+  // Папка, содержащая инструменты администрирования
+
+  CSIDL_COMMON_APPDATA            = $23;
+  // Папака AppData для всех пользователей. (обычно C:\Documents and Settings\All Users\Application Data)
+
+  CSIDL_COMMON_DOCUMENTS          = $2e;
+  // Папка "Общие документы" (обычно C:\Documents and Settings\All Users\Documents)
+
+  CSIDL_COMMON_TEMPLATES          = $2d;
+  // Папка шаблонов документов для всех пользователей (Обычно C:\Documents and Settings\All Users\Templates)
+
+  CSIDL_COMMON_MUSIC              = $35;
+  // Папка "Моя музыка" для всех пользователей. (обычно C:\Documents and Settings\All Users\Documents\My Music)
+
+  CSIDL_COMMON_PICTURES           = $36;
+  // Папка "Мои рисунки" для всех пользователей. (обычно C:\Documents and Settings\All Users\Documents\My Pictures)
+
+  CSIDL_COMMON_VIDEO              = $37;
+  // Папка "Моё видео" для всех пользователей (C:\Documents and Settings\All Users\Documents\My Videos)
+
+  CSIDL_COMPUTERSNEARME           = $3d;
+  // Виртуальная папка, представляет список компьютеров в вашей рабочей группе
+
+  CSIDL_CONNECTIONS               = $31;
+  // Виртуальная папка, представляет список сетевых подключений
+
+  CSIDL_LOCAL_APPDATA             = $1c;
+  // AppData для приложений, которые не переносятся на другой компьютер (обычно C:\Documents and Settings\username\Local Settings\Application Data)
+
+  CSIDL_MYDOCUMENTS               = $0c;
+  // Виртуальный каталог, представляющий папку "Мои документы"
+
+  CSIDL_MYMUSIC                   = $0d;
+  // Папка "Моя музыка"
+
+  CSIDL_MYPICTURES                = $27;
+  // Папка "Мои картинки"
+
+  CSIDL_MYVIDEO                   = $0e;
+  // Папка "Моё видео"
+
+  CSIDL_PROFILE                   = $28;
+  // Папка пользователя (обычно C:\Documents and Settings\username)
+
+  CSIDL_PROGRAM_FILES             = $26;
+  // Папка Program Files (обычно C:\Program Files)
+
+  CSIDL_PROGRAM_FILESX86          = $2a;
+
+  CSIDL_PROGRAM_FILES_COMMON      = $2b;
+  // Папка Program Files\Common (обычно C:\Program Files\Common)
+
+  CSIDL_PROGRAM_FILES_COMMONX86   = $2c;
+
+  CSIDL_RESOURCES                 = $38;
+  // Папка для ресурсов. Vista и выше (обычно C:\Windows\Resources)
+
+  CSIDL_RESOURCES_LOCALIZED       = $39;
+
+  CSIDL_SYSTEM                    = $25;
+  // Папака System (обычно C:\Windows\System32 или C:\Windows\System)
+
+  CSIDL_SYSTEMX86                 = $29;
+
+  CSIDL_WINDOWS                   = $24;
+  // Папка Windows. Она же %windir% или %SYSTEMROOT% (обычно C:\Windows)
+implementation
+
+
+function GetSpecialPath(CSIDL: word): string;
+var s:  string;
+begin
+  SetLength(s, MAX_PATH);
+  if not SHGetSpecialFolderPath(0, PChar(s), CSIDL, true)
+  then s := '';
+  result := PChar(s);
+end;
+Procedure Get_from_db(id:integer);
+
+begin
+case id of
+0:  //Проверять обновления при загрузке
+  begin
+    //Тип - boolean
+    v_Root_Key_current_user:=true;
+    v_Key_Path:='software\'+ rg_COMPANY+'\'+ rg_APPNAME;
+    v_Key_Name:='Check_updates_on_startup';
+    V_Def_Val_Bool:=true;
+    exit;
+  end;
+
+end;
+end;
+
+procedure WriteBool(id:integer; value:boolean);
+ var Registry: TRegistry;
+ begin
+    Registry := TRegistry.Create();
+    Get_from_db(id);
+   { устанавливаем корневой ключ; напрмер hkey_local_machine или hkey_current_user }
+   if v_Root_Key_current_user then Registry.RootKey:=hkey_current_user  else Registry.RootKey:=hkey_local_machine;
+   Registry.OpenKey(v_Key_Path,true);
+   registry.WriteBool(v_Key_Name,value);
+   { закрываем и освобождаем ключ }
+   Registry.CloseKey;
+   Registry.Free;
+end;
+
+Function ReadBool(id:integer):boolean;
+ var Registry: TRegistry;
+ begin
+    Registry := TRegistry.Create();
+    Get_from_db(id);
+   { устанавливаем корневой ключ; напрмер hkey_local_machine или hkey_current_user }
+   if v_Root_Key_current_user then Registry.RootKey:=hkey_current_user  else Registry.RootKey:=hkey_local_machine;
+   Registry.OpenKey(v_Key_Path,true);
+   if registry.ValueExists(v_Key_Name) then ReadBool:=registry.ReadBool( v_Key_Name)
+   else
+    begin
+     registry.WriteBool(v_Key_Name,V_Def_Val_Bool);
+     ReadBool:=V_Def_Val_Bool;
+    end;
+   { закрываем и освобождаем ключ }
+   Registry.CloseKey;
+   Registry.Free;
+end;
+
+
+
+function SearchFiles(const Path,SearchPattern:String;LookInSubFolders:boolean):TStringDynArray;
+var
+sda:TStringDynArray;
+begin
+//TDirectory.GetFileSystemEntries(Path,TSearchOption.soAllDirectories);
+if LookInSubFolders then sda:=TDirectory.GetFiles( Path,SearchPattern,TSearchOption.soAllDirectories) else sda:=TDirectory.GetFiles( Path,SearchPattern,TSearchOption.soTopDirectoryOnly) ;
+SearchFiles:= sda;
+end;
+
+
+end.

@@ -1,0 +1,401 @@
+unit unitClasses4Devices;
+
+// Юнит с описанием основных классов для устройств
+interface
+
+uses
+  vcl.extctrls, // Для доступа к TImage
+  vcl.controls, // Для доступа к TMouseButton
+  winapi.windows, // Там описание типа hicon
+  system.classes, // Там объявлен класс TPersistent
+  math; // Для NaN, IsNan
+
+Type
+
+  TResStack = array of boolean;
+
+  TRCPort = class; // Опережающее объявление класса TPort
+  TDevice = class; // Опережающее объявление класса TDevice
+  TNode = class; // Опережающее объявление класса TNode
+  TRCPorts = array of TRCPort; // Тип - порты (массив обычных портов)
+  TDevices = array of TDevice; // Массив устройств
+  TNodes = array of TNode; // Массив узлов
+  TArrayChar = array of ansichar;
+  TAshortstrings = array of shortstring; // Массив малых строк
+  // Call-back методы
+  TBackProcDraw = procedure(Sender: TObject; isRunning: boolean;
+    RunningTime: Extended); stdcall; // Процедура обратного вызова перерисовки
+  TBackClick = procedure(Sender: TObject); stdcall;
+  TBackShowSettings = procedure(Sender: TObject); stdcall;
+  TBackApplySaveData = procedure(Sender: TObject); stdcall;
+  TBackTact = procedure(Sender:TObject;Tact:Int64);stdcall;
+  TBackMouseDown = procedure(Sender: TObject; Button: TMouseButton;
+    Shift: TShiftState; X, Y: Integer);  stdcall;
+  TBackMouseMove = procedure(Sender: TObject; Shift: TShiftState;
+    X, Y: Integer);  stdcall;
+  TBackMouseUp = procedure(Sender: TObject; Button: TMouseButton;
+    Shift: TShiftState; X, Y: Integer);  stdcall;
+  TBackDblClick = procedure(Sender: TObject); stdcall;
+  // Функция обратного вызова уровня сигнала
+  TBackProcGetLevel = function(Sender: TObject): single; stdcall;
+  TGet_MCandCF = procedure(var vMC:int64;var vCF:integer);stdcall;
+  // "Узловой" класс - узел node
+  TNode = class sealed(TObject)
+  private // Тут внутренние поля
+
+  public // Конструктор, деструктор, массивы, переменные
+    Ports: TRCPorts; // Массив ссылок на порты
+  published // свойства, методы
+    Function GetLevel(): single; stdcall;
+  end;
+
+  TInfoDevice = class sealed(TObject)
+  public
+    vType: byte; // Тип (байт)
+    vSType: shortstring; // Тип (Строкой) ?
+    vSFamily: shortstring; // Семейство (строкой)?
+    vSModel: TAshortstrings; // TAshortstrings; //Модель (Строкой)?
+    vSDisplayName:shortstring; //Показываемое имя (на панели)
+    vIcon: hicon; // Иконка
+    evFileName: shortstring; // Имя файла и путь к dll
+    evLoaded: boolean; // Загружена ли в память dll-ка
+    evLibHandle: THandle; // Хэндл загруженной библиотеки
+    // Функции, экспортируемые из dll-ки
+    Get_info_class: function(): TInfoDevice; stdcall;
+    Get_Device_class: Function(HostHandle: THandle;MainDevice:TDevice): TDevice; stdcall;
+    What_is: Function(var version: shortstring): Integer; stdcall;
+    // procedure AssignF(Source: TInfoDevice);
+  end;
+
+  TDevice = class sealed(TObject) // Тип - радиодеталь или устройство
+  private
+    fMainDevice:TDevice; //Главное устройство
+    fDevType: byte;
+    fRCType: shortstring;
+    fRCFamily: shortstring;
+    fRCModel: shortstring;
+    fRCShowName:shortstring; //Имя, кот. показывается на панели
+    fPortsCount: Integer;
+    fImage: TImage;
+    fWidth: Integer;
+    fHeight: Integer;
+    fSaveData: TArrayChar;
+    fHostHandle:THandle; //Application Handle главной программы
+    fOrigHandle:THandle; // Application Handle Dll-ки
+    // Ссылки на процедуры
+    fBackProcDraw: TBackProcDraw; // Процедура перерисовки
+    fBackClick: TBackClick; // Процедура клика в рун-тайм
+    fBackMD: TBackMouseDown; // Процедура MouseDown in run-time
+    fBackMM: TBackMouseMove; // Процедура MouseMove in run-time
+    fBackMU: TBackMouseUp; // Процедура MouseDown in run-time
+    fGet_MCandCF:TGet_MCandCF;
+    fBackDblClick: TBackDblClick; // Процедура DblClick in run-time
+    fBackShowSettings:TBackShowSettings; //Процедура показа настроек
+    fBackApplySaveData:TBackApplySaveData; //Процедура, кот. вызывается для изменения настроек устройства (после загрузки проекта)
+    fBackTact:TBackTact;
+    // Подключены ли процедуры
+
+    fAssignedBackClick: boolean; // Процедура клика в рун-тайм
+    fAssignedBackMD: boolean; // Процедура MouseDown in run-time
+    fAssignedBackMM: boolean; // Процедура MouseMove in run-time
+    fAssignedBackMU: boolean; // Процедура MouseDown in run-time
+    fAssignedBackDblClick: boolean; // Процедура DblClick in run-time
+    fAssignedShowSettings:boolean; //Процедура показа настроек
+    fAssignedBackTact:boolean; //Процедура Такта микроконтроллера
+    fAssignedGet_MCandCF:boolean;
+    //Процедуры
+    //Procedure ChangeSaveData(vSaveData:TArrayChar);
+    Function GetLenSD:integer;
+    Procedure SetLenSD(val:integer);
+
+  public
+
+    Port: TRCPorts; // Массив портов для доступа
+    x_img_XX, x_img_YY: Integer; // Для перемещения Img
+    InternalIndex:integer; //Внутренний (внутри dll) индекс девайса
+    Procedure AddPort(pPortName: shortstring; pDirection: byte;
+      pDigital: boolean; pLevel: single; BackProcGetLevel: TBackProcGetLevel);
+  Constructor Create(pInternalIndex:integer; Width: Integer; Height: Integer; pDevType: byte;
+  pRCType: shortstring; pRCFamily: shortstring; pRCModel: shortstring;
+  pNumberOfPorts: Integer; BackProcDraw: TBackProcDraw; BackClick: TBackClick;
+  BackMD: TBackMouseDown; BackMM: TBackMouseMove; BackMU: TBackMouseUp;
+   BackDblClick: TBackDblClick;BackShowSettings:TBackShowSettings;BackApplySaveData:TBackApplySaveData;BackTact:TBackTact;OrigHandle:THandle;HostHandle:THandle;MainDevice:TDevice; Get_MCandCF:TGet_MCandCF);
+    destructor Destroy;
+
+  published
+    // Свойства
+    property MainDevice: TDevice read fMainDevice;
+    property DevType: byte read fDevType; // Код типа
+    property SaveData:TArrayChar read fSaveData write fSaveData; //Данные, кот сохраняются вместе с проектом
+    property LenSaveData:integer read GetLenSD write SetLenSD;
+    property RCType: shortstring read fRCType; // Тип строкой
+    property RCFamily: shortstring read fRCFamily; // Семейство
+    property RCModel: shortstring read fRCModel; // Модель
+    property RCShowName:shortstring read fRCShowName; //Имя, кот показывается на панели (зависит от языка)
+    Property PortsCount: Integer read fPortsCount; // Количество портов
+    Property Image: TImage read fImage write fImage;
+    Property HostHandle:THandle read fHostHandle; //Application Handle главной программы
+    Property OrigHandle:THandle read fOrigHandle ; // Application Handle Dll-ки
+    // Image Box для вывода изображения
+    Property Width: Integer read fWidth; // Ширина картинки
+    Property Height: Integer read fHeight; // Высота картинки
+    // Подключены ли процедуры
+    Property AssignedBackClick: boolean read fAssignedBackClick; // Процедура клика в рун-тайм
+    Property AssignedBackMD: boolean read fAssignedBackMD; // Процедура MouseDown in run-time
+    Property AssignedBackMM: boolean read fAssignedBackMM; // Процедура MouseMove in run-time
+    Property AssignedBackMU: boolean read fAssignedBackMU; // Процедура MouseDown in run-time
+    Property AssignedBackDblClick: boolean read fAssignedBackDblClick; // Процедура DblClick in run-time
+    Property AssignedShowSettings:boolean read fAssignedShowSettings; //Процедура показа настроек
+    Property AssignedBackTact:boolean read fAssignedBackTact; //Процедура обратного вызова в каждом такте МК
+
+    // Процедуры вызова Call-Back
+    Procedure Get_MCandCF(var vMC:int64;var vCF:integer);
+    Procedure DrawImage(isRunning: boolean; RunningTime: Extended);
+    Procedure Click();
+    Procedure DblClick();
+    Procedure MouseDown(Button: TMouseButton;
+    Shift: TShiftState; X, Y: Integer);
+    Procedure MouseMove(Shift: TShiftState;
+    X, Y: Integer);
+    Procedure MouseUp(Button: TMouseButton;
+    Shift: TShiftState; X, Y: Integer);
+    Procedure ShowSettings();
+    Procedure ApplySettings();
+    Procedure BackTact(Tact:int64);
+
+
+  end;
+
+  TRCPort = class
+  Private
+    fPortName: shortstring; // Название порта
+    fDirection: byte; // Направление 0 - отключен 1 - вход, 2 - выход, 3 - оба
+    fDigital: boolean; // Тип сигнала - 1 -цифра  0 - аналог
+    fLevel: single; // Уровень сигнала
+    fBackProcGetLevel: TBackProcGetLevel;
+    fDefaultLevel: single; // Уровень при чтении по-умолчанию
+    fPortNo: Integer; // Номер порта
+
+    // function Get_PortName():shortstring;
+  protected
+
+  Public
+    Node: TNode;
+    Device: TDevice;
+    constructor Create(pPortName: shortstring; pDirection: byte;
+      pDigital: boolean; pLevel: single; BackProcGetLevel: TBackProcGetLevel;
+      pPortNo: Integer);
+
+  Published
+
+    property PortName: shortstring // Название порта
+      read fPortName;
+    property PortNo:integer read fPortNo;
+    Function GetLevel(): single;
+  end;
+
+  Const
+AppVersion4Dll:shortstring='1.0';
+
+implementation
+
+Constructor TDevice.Create(pInternalIndex:integer; Width: Integer; Height: Integer; pDevType: byte;
+  pRCType: shortstring; pRCFamily: shortstring; pRCModel: shortstring;
+  pNumberOfPorts: Integer; BackProcDraw: TBackProcDraw; BackClick: TBackClick;
+  BackMD: TBackMouseDown; BackMM: TBackMouseMove; BackMU: TBackMouseUp;
+   BackDblClick: TBackDblClick;BackShowSettings:TBackShowSettings;BackApplySaveData:TBackApplySaveData;BackTact:TBackTact;OrigHandle:THandle;HostHandle:THandle;MainDevice:TDevice; Get_MCandCF:TGet_MCandCF);
+begin
+    //fRCShowName:=pRCShowName;
+
+    fMainDevice:=MainDevice;
+
+    fOrigHandle:=OrigHandle;
+    fHostHandle:=HostHandle;
+    InternalIndex:=pInternalIndex;
+    if not assigned(BackClick) then fAssignedBackClick:=false else fAssignedBackClick:=true; // Процедура клика в рун-тайм
+    if not assigned(BackMD) then  fAssignedBackMD:=false else fAssignedBackMD:=true; // Процедура MouseDown in run-time
+    if not assigned(BackMM) then  fAssignedBackMM:=false else fAssignedBackMM:=true; // Процедура MouseMove in run-time
+    if not assigned(BackMU) then  fAssignedBackMU:=false else fAssignedBackMU:=true; // Процедура MouseDown in run-time
+    if not assigned(BackDblClick) then  fAssignedBackDblClick:=false else fAssignedBackDblClick:=true; // Процедура DblClick in run-time
+    if not assigned(BackShowSettings) then  fAssignedShowSettings:=false else fAssignedShowSettings:=true; //Процедура показа настроек
+    if not assigned(BackTact) then  fAssignedBackTact:=false else fAssignedBackTact:=true; //Кал-бэк такта
+    if not assigned(Get_MCandCF) then fAssignedGet_MCandCF:=false  else fAssignedGet_MCandCF:=true;
+
+
+
+  fBackProcDraw := BackProcDraw;
+   // if ((@BackProcDraw) <>Pointer(nil)) then fAssignedBackProcDraw:=true;
+
+  fBackClick := BackClick;
+   // if @BackClick<>nil then fAssignedBackClick:=true;
+
+  fBackMD := BackMD;
+   // if @BackMD<>nil then fAssignedBackMD:=true;
+
+  fBackMM := BackMM;
+   // if @BackMM<>nil then fAssignedBackMM:=true;
+
+  fBackMU := BackMU;
+   // if @BackMU<>nil then fAssignedBackMU:=true;
+
+  fBackDblClick := BackDblClick;
+   // if @BackDblClick<>nil then fAssignedBackDblClick:=true;   }
+
+  fBackShowSettings:=BackShowSettings;
+
+  fBackApplySaveData:=BackApplySaveData;
+
+  fBackTact:=BackTact;
+
+  fGet_MCandCF:=Get_MCandCF;
+
+  fDevType := pDevType;
+  fRCType := pRCType;
+  fRCFamily := pRCFamily;
+  fRCModel := pRCModel;
+  fPortsCount := pNumberOfPorts;
+  fWidth := Width;
+  fHeight := Height;
+  // SetLength(self.Port
+  // Port := pPorts;
+
+end;
+
+
+
+Function TDevice.GetLenSD:integer;
+begin
+Result:=High(fSaveData)+1;
+end;
+Procedure TDevice.SetLenSD(val:integer);
+begin
+SetLength(fSaveData,val);
+end;
+
+Procedure TDevice.AddPort(pPortName: shortstring; pDirection: byte;
+  pDigital: boolean; pLevel: single; BackProcGetLevel: TBackProcGetLevel);
+begin
+  SetLength(Self.Port, High(Self.Port) + 2);
+  Self.Port[High(Self.Port)] := TRCPort.Create(pPortName, pDirection, pDigital,
+    pLevel, BackProcGetLevel, High(Self.Port));
+  Self.Port[High(Self.Port)].Device:=self;
+end;
+
+destructor TDevice.Destroy;
+var
+  I: Integer;
+begin
+  for I := 0 to fPortsCount - 1 do
+    Port[I].Free;
+
+  inherited;
+end;
+
+procedure TDevice.DrawImage(isRunning: boolean; RunningTime: Extended);
+begin
+  fBackProcDraw(Self, isRunning, RunningTime);
+end;
+
+Procedure TDevice.Get_MCandCF(var vMC:int64;var vCF:integer);
+begin
+   if assigned(fMainDevice) then fMainDevice.fGet_MCandCF(vMC,vCF)
+   else
+   begin
+   vMC:=-1;
+   vCF:=-1;
+   end;
+end;
+
+procedure TDevice.Click();
+begin
+  fBackClick(Self);
+end;
+
+procedure TDevice.ShowSettings();
+begin
+  fBackShowSettings(Self);
+end;
+
+Procedure TDevice.ApplySettings();
+begin
+fBackApplySaveData(self);
+end;
+
+procedure TDevice.DblClick();
+begin
+  fBackDblClick(Self);
+end;
+
+procedure TDevice.MouseDown(Button: TMouseButton;
+    Shift: TShiftState; X, Y: Integer);
+begin
+  fBackMD(Self,Button,
+    Shift, X, Y);
+end;
+
+procedure TDevice.MouseMove(Shift: TShiftState;
+    X, Y: Integer);
+begin
+  fBackMM(Self,
+    Shift, X, Y);
+end;
+
+procedure TDevice.MouseUp(Button: TMouseButton;
+    Shift: TShiftState; X, Y: Integer);
+begin
+  fBackMU(Self,Button,
+    Shift, X, Y);
+end;
+
+Procedure TDevice.BackTact(Tact:int64);
+begin
+  fBackTact(Self,Tact);
+end;
+
+
+
+
+constructor TRCPort.Create(pPortName: shortstring; pDirection: byte;
+  pDigital: boolean; pLevel: single; BackProcGetLevel: TBackProcGetLevel;
+  pPortNo: Integer);
+
+begin
+
+  Self.fPortName := pPortName;
+  Self.fDirection := pDirection;
+  Self.fDigital := pDigital;
+  Self.fDefaultLevel := pLevel;
+  Self.fBackProcGetLevel := BackProcGetLevel;
+  Self.fPortNo := pPortNo;
+end;
+
+
+Function TNode.GetLevel(): single; stdcall;
+
+var
+ I, vHigh: Integer;
+ s, n: single;
+ mn: Integer;
+begin
+  vHigh := High(Self.Ports);
+  s := 0; //Уровень сигнала до деления
+  mn := 0; //Количество членов для деления
+    for I := 0 to vHigh do
+  begin
+    if self.Ports[I].fDirection<2  then continue;
+    n:=self.Ports[I].GetLevel();
+    if isnan(n) then continue;
+    s:=s+n;
+    mn:=mn+1;
+  end;
+if mn=0 then result:=NaN else result:=s/mn; //Проверить, а что будет если рез-т NaN
+
+
+end;
+
+Function TRCPort.GetLevel(): single;
+begin
+  result := fBackProcGetLevel(self);
+end;
+
+end.

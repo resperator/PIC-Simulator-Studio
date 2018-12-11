@@ -1,0 +1,1438 @@
+unit UnitFormat;
+
+interface
+
+uses Windows, Classes, SysUtils, math, Dialogs, unitres, unitDev, frmOpen;
+Function LoadHex(Filename: string): boolean;
+Function SaveHex(Filename: string; ProgrammLen: integer): boolean;
+Function TwoByteHexToDec(hex: string): integer;
+Function OneByteHexToBin(hex: string): String;
+Function HexToInt(hex: string): integer;
+Function BinToInt(bin: string): integer;
+procedure DecToParBin(Dec: integer);
+Function LoadATCSS(Filename: string): boolean;
+Function SaveATCSS(Filename: string): boolean;
+procedure FormatAndSyntRVE();
+Procedure CreateNewASMWindow(Filename: string);
+Procedure CreateDefaultMK(Parent: TComponent);
+Function BinToHex(): string;
+
+var
+  ErrorText: String;
+  parBin: array [0 .. 20] of boolean;
+  // Параметр, в котором содержаться bin-данные для конвертирования в др СИ
+  par: array [0 .. 8] of boolean;
+
+implementation
+
+uses main, rvgettext, ChildComp, unitClasses4Devices;
+
+Procedure CreateNewASMWindow(Filename: string);
+var
+  // h,w:integer;
+  vhDC: hDC;
+begin
+  // h:=0;
+  // w:=0;
+  main.MainForm.CreateAllChild;
+  main.MainForm.Caption := unitres.GetText(1) + ' - [' + Filename + ']';
+  main.MainForm.AsmChild.Caption := GetText(3);
+  main.MainForm.AsmChild.RVE.Clear;
+  main.MainForm.CompChild.Caption := GetText(4);
+
+
+  // vhDC:=main.C_init(unitdev.Devices[0].image,w,h);
+  // bitblt( main.MainForm.CompChild.imgMC.Canvas.Handle,0,0,w,h,vhDC,0,0,SrcCopy) ;
+  // unitdev.Devices[0].image.ClientWidth:=w;
+  // unitdev.Devices[0].image.ClientHeight:=h;
+
+end;
+
+Procedure CreateDefaultMK(Parent: TComponent);
+begin
+  SetLength(Devices, 0);
+  Create_device(CurrentDevice, Parent, 30, 50); // CurrentSubDevice)
+  Create_nodes(0); // Создадим узлы по устройству
+end;
+
+Function BinToHex(): string;
+var
+  L, H: string[1];
+begin
+  // LOW
+  if par[0] then
+  begin // XXX1
+    if par[1] then
+    begin // XX11
+      if par[2] then
+      begin // X111
+        if par[3] then // 1111
+          L := 'F'
+        else // 0111
+          L := '7';
+      end
+      else
+      begin // X011
+        if par[3] then // 1011
+          L := 'B'
+        else // 0011
+          L := '3';
+      end;
+    end
+    else
+    begin // XX01
+      if par[2] then
+      begin // X101
+        if par[3] then // 1101
+          L := 'D'
+        else // 0101
+          L := '5';
+      end
+      else
+      begin // X001
+        if par[3] then // 1001
+          L := '9'
+        else // 0001
+          L := '1';
+      end;
+    end;
+  end
+  else
+  begin // XXX0
+    if par[1] then
+    begin // XX10
+      if par[2] then
+      begin // X110
+        if par[3] then // 1110
+          L := 'E'
+        else // 0110
+          L := '6';
+      end
+      else
+      begin // X010
+        if par[3] then // 1010
+          L := 'A'
+        else // 0010
+          L := '2';
+      end;
+    end
+    else
+    begin // XX00
+      if par[2] then
+      begin // X100
+        if par[3] then // 1100
+          L := 'C'
+        else // 0100
+          L := '4';
+      end
+      else
+      begin // X000
+        if par[3] then // 1000
+          L := '8'
+        else // 0000
+          L := '0';
+      end;
+    end;
+  end;
+
+  // HIGHT
+
+  if par[4] then
+  begin // XXX1
+    if par[5] then
+    begin // XX11
+      if par[6] then
+      begin // X111
+        if par[7] then // 1111
+          H := 'F'
+        else // 0111
+          H := '7';
+      end
+      else
+      begin // X011
+        if par[7] then // 1011
+          H := 'B'
+        else // 0011
+          H := '3';
+      end;
+    end
+    else
+    begin // XX01
+      if par[6] then
+      begin // X101
+        if par[7] then // 1101
+          H := 'D'
+        else // 0101
+          H := '5';
+      end
+      else
+      begin // X001
+        if par[7] then // 1001
+          H := '9'
+        else // 0001
+          H := '1';
+      end;
+    end;
+  end
+  else
+  begin // XXX0
+    if par[5] then
+    begin // XX10
+      if par[6] then
+      begin // X110
+        if par[7] then // 1110
+          H := 'E'
+        else // 0110
+          H := '6';
+      end
+      else
+      begin // X010
+        if par[7] then // 1010
+          H := 'A'
+        else // 0010
+          H := '2';
+      end;
+    end
+    else
+    begin // XX00
+      if par[6] then
+      begin // X100
+        if par[7] then // 1100
+          H := 'C'
+        else // 0100
+          H := '4';
+      end
+      else
+      begin // X000
+        if par[7] then // 1000
+          H := '8'
+        else // 0000
+          H := '0';
+      end;
+    end;
+  end;
+  if par[8] then
+    result := '1' + H + L
+  else
+    result := H + L;
+end;
+
+procedure FormatAndSyntRVE();
+begin
+  // Общие для всех типов процедуры
+  main.MainForm.AsmChild.RVE.FormatAll;
+  main.MainForm.AsmChild.autoCheck := true;
+  // application.ProcessMessages;
+  main.MainForm.AsmChild.CheckSyn;
+  main.MainForm.AsmChild.OnResize;
+  // main.MainForm.asmchild.OnType;
+  // Asmchild.RT.CaretPos:=Caret;
+  main.MainForm.AsmChild.alload := true;
+  // Asmchild.rt.DoubleBuffered:=false;
+  main.MainForm.AsmWindowOpen := true;
+  main.MainForm.AsmChild.RVE.VScrollPos := 0;
+
+end;
+
+Function LoadATCSS(Filename: string): boolean;
+var
+  f: TFileStream;
+  SizeData: int32;
+  SizeName: byte;
+  SizeFamily: byte;
+  SizeBoolean: boolean;
+  i, j, c, z: integer;
+  tmpNode: TNode;
+
+  tmpText, asmText, NameText, FamilyText: string;
+
+  tmpNumberOfDevices: int32;
+  tmpDevType, tmpByte: byte;
+  tmpRCType, tmpSS: ShortString;
+  tmpRCFamily: ShortString;
+  tmpRCModel: ShortString;
+  tmpLeft, tmpTop: int32;
+  tmpSizeOfSaveData:int32;
+  tmpSaveData:TArrayChar;
+  Ch:ansichar;
+
+  tmpDev, tmpSubDev: int32;
+
+  ConfigLen: int32;
+  ConfigArrayBoolean: array of boolean;
+
+begin
+  LoadATCSS := false;
+
+  f := TFileStream.Create(Filename, fmOpenRead);
+  // 1 Чтение заголовка файла
+  SetLength(tmpText, 17);
+  f.Read(tmpText[1], 17 * 2);
+  if tmpText <> 'ATCSSprojectXE1.0' then
+  begin
+    showmessage('Invalid file');
+    f.Free;
+    exit;
+  end;
+  // 2 Чтение ASM-блока
+  SetLength(tmpText, 3);
+  f.Read(tmpText[1], 3 * 2);
+  if tmpText <> 'ASM' then
+  begin
+    showmessage('Invalid file');
+    f.Free;
+    exit;
+  end;
+  // 3 Чтение размера ASM-Блока
+  f.Read(SizeData, SizeOf(SizeData));
+  // 4 Чтение самого ASM-текста
+  SetLength(asmText, SizeData);
+  if SizeData > 0 then
+    f.Read(asmText[1], SizeData * 2);
+
+  // Создание окна и вставка
+  CreateNewASMWindow(f.Filename);
+  main.MainForm.AsmChild.RVE.InsertTextW(asmText);
+  main.MainForm.ProjectFileName := Filename;
+
+  // Reset(main.MainForm.CompChild);
+  // 4,5 чтение Config-bits
+  SetLength(tmpText, 3);
+  f.Read(tmpText[1], 3 * 2);
+  if tmpText <> 'CFB' then
+  begin
+    showmessage('Invalid file');
+    f.Free;
+    exit;
+  end;
+  {
+    SizeData:=Get_ConfigBitsHI;
+    f.Write(SizeData, SizeOf(SizeData));
+    for I := 0 to SizeData do
+    begin
+    SizeBoolean:=Get_config(I);
+    f.Write(SizeBoolean, SizeOf(SizeBoolean));
+    end;
+  }
+  f.Read(SizeData, SizeOf(SizeData));
+  ConfigLen := SizeData;
+  SetLength(ConfigArrayBoolean, SizeData + 1);
+  for c := 0 to SizeData do
+  begin
+    f.Read(SizeBoolean, SizeOf(boolean));
+    ConfigArrayBoolean[c] := SizeBoolean
+    // Set_Config(C,SizeBoolean);  А это нужно сделать после выбора МК, а то ошибка выскочит
+  end;
+  // 5 Чтение DED-блока (Devices-editor)
+  SetLength(tmpText, 3);
+  f.Read(tmpText[1], 3 * 2);
+  if tmpText <> 'DED' then
+  begin
+    showmessage('Invalid file');
+    f.Free;
+    exit;
+  end;
+  // 6 Чтение кол-ва устройств в файле
+  f.Read(SizeData, SizeOf(SizeData));
+  tmpNumberOfDevices := SizeData;
+
+  for c := 0 to tmpNumberOfDevices do // Цикл загрузки устройств
+  begin
+    // а 1 байт - тип устр-ва
+    f.Read(SizeName, SizeOf(SizeName));
+    tmpDevType := SizeName;
+    // б 1 байт - размер типа
+    f.Read(SizeName, SizeOf(SizeName));
+    // в до 255 байт - тип RCType;
+    f.Read(tmpRCType, SizeOf(tmpRCType));
+    tmpRCType := Copy(tmpRCType, 1, SizeName);
+    // г 1 байт - размер семейство
+    f.Read(SizeName, SizeOf(SizeName));
+    // д до 255 байт - тип RCFamily;
+    f.Read(tmpRCFamily, SizeOf(tmpRCFamily));
+    tmpRCFamily := Copy(tmpRCFamily, 1, SizeName);
+    // е 1 байт - размер модели
+    f.Read(SizeName, SizeOf(SizeName));
+    // ж до 255 байт - тип RCModel;
+    f.Read(tmpRCModel, SizeOf(tmpRCModel));
+    tmpRCModel := Copy(tmpRCModel, 1, SizeName);
+    // з Int32 - позиция Left
+    f.Read(tmpLeft, SizeOf(tmpLeft));
+    // и Int32 - позиция Top
+    f.Read(tmpTop, SizeOf(tmpTop));
+    // SaveData
+    f.Read(tmpSizeOfSaveData,sizeof(tmpSizeOfSaveData));
+    SetLength(tmpSaveData,tmpSizeOfSaveData);
+    for I := 0 to tmpSizeOfSaveData-1 do
+      begin
+      f.Read(Ch,1);
+      tmpSaveData[I]:=Ch;
+      end;
+
+
+    if c = 0 then
+    begin // МК
+      unitDev.CurrentDevice := -1;
+      unitDev.CurrentSubDevice := -1;
+
+      for i := Low(AInfoDevice) to High(AInfoDevice) do
+        for j := Low(AInfoDevice[i].vSModel) to High(AInfoDevice[i].vSModel) do
+          if (AInfoDevice[i].vSModel[j] = tmpRCModel) and
+            (AInfoDevice[i].vSFamily = tmpRCFamily) then
+          begin
+            unitDev.CurrentDevice := i;
+            unitDev.CurrentSubDevice := j;
+            { Devices[0].DevType:=tmpDevType;
+              Devices[0].RCType:=tmpRCType;
+              Devices[0].RCFamily:=tmpRCFamily;
+              Devices[0].RCModel:=tmpRCModel;
+              Devices[0].x_img_XX:=tmpLeft;
+              Devices[0].x_img_YY:=tmptop; }
+            main.MainForm.LoadDllMC();
+            unitDev.Create_device(CurrentDevice, main.MainForm.CompChild,
+              tmpLeft, tmpTop);
+            Devices[High(Devices)].SaveData:=tmpSaveData;
+            // Create_device(CurrentDevice, main.MainForm.CompChild , tmpLeft, tmpTop); // CurrentSubDevice)
+            Create_nodes(0); // Создадим узлы по устройству
+          end;
+      if (unitDev.CurrentDevice = -1) or (unitDev.CurrentSubDevice = -1) then
+      begin
+        showmessage(GetText(1000));
+        // Нет такой модели микроконтроллера, пускай пользователь выбирает другую
+        frmOpen.frmopn.TypeOfCall := 4;
+        frmOpen.frmopn.showmodal;
+      end;
+    end
+    else
+    begin // Другое
+      // Поиск из базы
+      tmpDev := -1;
+      tmpSubDev := -1;
+
+      for i := Low(AInfoDevice) to High(AInfoDevice) do
+        for j := Low(AInfoDevice[i].vSModel) to High(AInfoDevice[i].vSModel) do
+          if (AInfoDevice[i].vSModel[j] = tmpRCModel) and
+            (AInfoDevice[i].vSFamily = tmpRCFamily) and
+            (AInfoDevice[i].vType = tmpDevType) and
+            (AInfoDevice[i].vSType = tmpRCType) then
+          begin
+            tmpDev := i;
+            tmpSubDev := 0;
+          end;
+      if (tmpDev = -1) or (tmpSubDev = -1) then
+        showmessage(GetText(1001) + ' : ' + tmpRCFamily + ' ' + tmpRCModel)
+      else
+        // Добавляем
+        unitDev.Create_device(tmpDev, main.MainForm.CompChild, tmpLeft, tmpTop);
+        Devices[High(Devices)].SaveData:=tmpSaveData;
+      // А теперь загрузим принадлежность "портов" к "узлам" (только для устройств с DevType<>0)
+      for z := 1 to Devices[High(Devices)].PortsCount do
+      begin
+
+        f.Read(tmpByte, SizeOf(tmpByte));
+        if tmpByte > 0 then
+        begin
+          f.Read(tmpSS, SizeOf(tmpSS));
+          // Поиск "узла"
+
+          tmpNode := nil;
+          for j := Low(unitDev.Nodes) to High(unitDev.Nodes) do
+            if unitDev.Nodes[j].Ports[0].PortName = tmpSS then
+              tmpNode := unitDev.Nodes[j];
+          // Нашли, он в tmpNode
+          // В порте сделаем ссыль на ноду
+          unitDev.Devices[High(Devices)].Port[z - 1].Node := tmpNode;
+
+          // В нужную ноду добавим ссыль на порт (если нода найдена)
+          if tmpNode = nil then
+            continue;
+
+          SetLength(tmpNode.Ports, high(tmpNode.Ports) + 2);
+          tmpNode.Ports[high(tmpNode.Ports)] := unitDev.Devices[High(Devices)
+            ].Port[z - 1];
+          // list.ItemProps[I-1].
+        end;
+
+      end;
+    end;
+
+  end;
+  //Забивание байтами конфигурации (до выбора МК мы не могли это сделать)
+      for c := 0 to ConfigLen do
+      begin
+      Set_Config(C,ConfigArrayBoolean[c]);
+      end;
+  //
+  LoadATCSS := true;
+  f.Free;
+end;
+
+Function SaveATCSS(Filename: string): boolean;
+var
+  f: TFileStream;
+  SizeData: int32;
+  SizeByte: byte;
+  SizeBoolean: boolean;
+  S: String;
+  i, j, z: integer;
+begin
+  SaveATCSS := false;
+  f := TFileStream.Create(Filename, fmCreate);
+  // f.Write('ATCSSprojectXE1.0',17);
+  S := 'ATCSSprojectXE1.0';
+  f.Write(S[1], Length(S) * SizeOf(Char));
+  // Asm-текст
+  S := 'ASM';
+  f.Write(S[1], Length(S) * SizeOf(Char));
+  S := getalltext(main.MainForm.AsmChild.RVE);
+  SizeData := Length(S);
+  f.Write(SizeData, SizeOf(SizeData));
+  if SizeData > 0 then
+    f.Write(S[1], SizeData * SizeOf(Char));
+  // Config-bits
+  S := 'CFB';
+  f.Write(S[1], Length(S) * SizeOf(Char));
+  SizeData := Get_ConfigBitsHI;
+  f.Write(SizeData, SizeOf(SizeData));
+  for i := 0 to SizeData do
+  begin
+    SizeBoolean := Get_config(i);
+    f.Write(SizeBoolean, SizeOf(SizeBoolean));
+  end;
+  // Блок описания Device-editora
+  S := 'DED';
+  f.Write(S[1], Length(S) * SizeOf(Char));
+
+  SizeData := High(Devices);
+  f.Write(SizeData, SizeOf(SizeData));
+
+  for i := 0 to High(Devices) do
+
+  begin
+    // Данные каждой радиодетали
+    // Байт - тип
+    SizeByte := Devices[i].DevType;
+    f.Write(SizeByte, SizeOf(SizeByte));
+    // Байт - размер (типа)
+    SizeByte := Length(Devices[i].RCType);
+    f.Write(SizeByte, SizeOf(SizeByte));
+    // До 255 байт - тип строкой короткой
+    f.Write(Devices[i].RCType, SizeOf(Devices[i].RCType));
+    // Байт - размер (семейства)
+    SizeByte := Length(Devices[i].RCFamily);
+    f.Write(SizeByte, SizeOf(SizeByte));
+    // До 255 байт - семейство строкой короткой
+    f.Write(Devices[i].RCFamily, SizeOf(Devices[i].RCFamily));
+    // Байт - размер (модели)
+    SizeByte := Length(Devices[i].RCModel);
+    f.Write(SizeByte, SizeOf(SizeByte));
+    // До 255 байт - модель строкой короткой
+    f.Write(Devices[i].RCModel, SizeOf(Devices[i].RCModel));
+    // Позицию радиодетали
+    SizeData := Devices[i].Image.Left;
+    f.Write(SizeData, SizeOf(SizeData));
+    SizeData := Devices[i].Image.top;
+    f.Write(SizeData, SizeOf(SizeData));
+    //Дополнительные данные (настройки) радиодетали
+    SizeData:=Devices[i].LenSaveData;
+    f.Write(SizeData, SizeOf(SizeData));
+    for j:=0 to sizedata-1 do f.Write(devices[i].SaveData[j],SizeOf(Devices[i].SaveData[j]));
+    // Порты (их принадлежность к "узлам")
+    // Для МК - мимо
+    if Devices[i].DevType <> 0 then
+      for j := 1 to Devices[i].PortsCount do
+      begin
+        // #New
+        // unitDev.Nodes[J].Ports[0].PortName
+        if not assigned(Devices[i].Port[j - 1].Node) then
+        begin // Тут порт не присоединен ни к одному узлу
+          SizeByte := 0;
+          f.Write(SizeByte, SizeOf(SizeByte));
+        end
+        else
+        begin
+          SizeByte := Length(Devices[i].Port[j - 1].Node.Ports[0].PortName);
+          f.Write(SizeByte, SizeOf(SizeByte));
+          f.Write(Devices[i].Port[j - 1].Node.Ports[0].PortName,
+            SizeOf(Devices[i].Port[j - 1].Node.Ports[0].PortName));
+
+        end;
+        // #New
+
+      end;
+
+    // break;
+  end;
+  // Devices[High(Devices)]
+
+  // f.Write(s,17);
+  // f.WriteBufferData('AB',2);
+  // f.WriteBuffer()
+  main.MainForm.ProjectFileName := Filename;
+  SaveATCSS := true;
+  main.MainForm.exchange:=false;
+  f.Free;
+end;
+
+Function InstructionToString(No: integer): string;
+Var
+  b1, b2: string;
+begin
+  if No <> -1 then
+  begin
+    par[0] := get_ROM(No, 0);
+    par[1] := get_ROM(No, 1);
+    par[2] := get_ROM(No, 2);
+    par[3] := get_ROM(No, 3);
+    par[4] := get_ROM(No, 4);
+    par[5] := get_ROM(No, 5);
+    par[6] := get_ROM(No, 6);
+    par[7] := get_ROM(No, 7);
+    { PIC10F.par[1]:= PIC10F.ROM[No,1];
+      PIC10F.par[2]:= PIC10F.ROM[No,2];
+      PIC10F.par[3]:= PIC10F.ROM[No,3];
+      PIC10F.par[4]:= PIC10F.ROM[No,4];
+      PIC10F.par[5]:= PIC10F.ROM[No,5];
+      PIC10F.par[6]:= PIC10F.ROM[No,6];
+      PIC10F.par[7]:= PIC10F.ROM[No,7]; }
+    b1 := BinToHex();
+    par[0] := get_ROM(No, 8);
+    par[1] := get_ROM(No, 9);
+    par[2] := get_ROM(No, 10);
+    par[3] := get_ROM(No, 11);
+    par[4] := false;
+    par[5] := false;
+    par[6] := false;
+    par[7] := false;
+    b2 := BinToHex();
+    result := b1 + b2;
+    exit;
+  end
+  else
+  begin
+    par[0] := Get_config(0);
+    par[1] := Get_config(1);
+    par[2] := Get_config(2);
+    par[3] := Get_config(3);
+    par[4] := Get_config(4);
+    par[5] := Get_config(5);
+    par[6] := Get_config(6);
+    par[7] := Get_config(7);
+    b1 := BinToHex();
+    par[0] := Get_config(8);
+    par[1] := Get_config(9);
+    par[2] := Get_config(10);
+    par[3] := Get_config(11);
+    par[4] := false;
+    par[5] := false;
+    par[6] := false;
+    par[7] := false;
+    b2 := BinToHex();
+    result := b1 + b2;
+    exit;
+  end;
+
+end;
+
+function DecTo4ByteHex(Dec: integer): string;
+var
+  j: Cardinal;
+  a, b, c, d: byte;
+  res: string;
+begin
+  a := 0;
+  b := 0;
+  c := 0;
+  d := 0;
+  res := '';
+  for j := 1 to Dec do
+  begin
+    a := a + 1;
+    if a = 16 then
+    begin
+      a := 0;
+      b := b + 1;
+      if b = 16 then
+      begin
+        b := 0;
+        c := c + 1;
+        if c = 16 then
+        begin
+          c := 0;
+          d := d + 1;
+        end;
+      end;
+    end;
+  end;
+  if d = 0 then
+    res := res + '0';
+  if d = 1 then
+    res := res + '1';
+  if d = 2 then
+    res := res + '2';
+  if d = 3 then
+    res := res + '3';
+  if d = 4 then
+    res := res + '4';
+  if d = 5 then
+    res := res + '5';
+  if d = 6 then
+    res := res + '6';
+  if d = 7 then
+    res := res + '7';
+  if d = 8 then
+    res := res + '8';
+  if d = 9 then
+    res := res + '9';
+  if d = 10 then
+    res := res + 'A';
+  if d = 11 then
+    res := res + 'B';
+  if d = 12 then
+    res := res + 'C';
+  if d = 13 then
+    res := res + 'D';
+  if d = 14 then
+    res := res + 'E';
+  if d = 15 then
+    res := res + 'F';
+
+  if c = 0 then
+    res := res + '0';
+  if c = 1 then
+    res := res + '1';
+  if c = 2 then
+    res := res + '2';
+  if c = 3 then
+    res := res + '3';
+  if c = 4 then
+    res := res + '4';
+  if c = 5 then
+    res := res + '5';
+  if c = 6 then
+    res := res + '6';
+  if c = 7 then
+    res := res + '7';
+  if c = 8 then
+    res := res + '8';
+  if c = 9 then
+    res := res + '9';
+  if c = 10 then
+    res := res + 'A';
+  if c = 11 then
+    res := res + 'B';
+  if c = 12 then
+    res := res + 'C';
+  if c = 13 then
+    res := res + 'D';
+  if c = 14 then
+    res := res + 'E';
+  if c = 15 then
+    res := res + 'F';
+
+  if b = 0 then
+    res := res + '0';
+  if b = 1 then
+    res := res + '1';
+  if b = 2 then
+    res := res + '2';
+  if b = 3 then
+    res := res + '3';
+  if b = 4 then
+    res := res + '4';
+  if b = 5 then
+    res := res + '5';
+  if b = 6 then
+    res := res + '6';
+  if b = 7 then
+    res := res + '7';
+  if b = 8 then
+    res := res + '8';
+  if b = 9 then
+    res := res + '9';
+  if b = 10 then
+    res := res + 'A';
+  if b = 11 then
+    res := res + 'B';
+  if b = 12 then
+    res := res + 'C';
+  if b = 13 then
+    res := res + 'D';
+  if b = 14 then
+    res := res + 'E';
+  if b = 15 then
+    res := res + 'F';
+
+  if a = 0 then
+    res := res + '0';
+  if a = 1 then
+    res := res + '1';
+  if a = 2 then
+    res := res + '2';
+  if a = 3 then
+    res := res + '3';
+  if a = 4 then
+    res := res + '4';
+  if a = 5 then
+    res := res + '5';
+  if a = 6 then
+    res := res + '6';
+  if a = 7 then
+    res := res + '7';
+  if a = 8 then
+    res := res + '8';
+  if a = 9 then
+    res := res + '9';
+  if a = 10 then
+    res := res + 'A';
+  if a = 11 then
+    res := res + 'B';
+  if a = 12 then
+    res := res + 'C';
+  if a = 13 then
+    res := res + 'D';
+  if a = 14 then
+    res := res + 'E';
+  if a = 15 then
+    res := res + 'F';
+  result := res;
+end;
+
+Function CRC(str: string): string;
+var
+  z, Dec: integer;
+  tmpstr: string;
+begin
+  Dec := 0;
+  for z := 1 to (Length(str) div 2) do
+  begin
+    tmpstr := Copy(str, (z * 2) - 1, 2);
+    Dec := Dec + TwoByteHexToDec(tmpstr);
+    if Dec > 255 then
+      Dec := Dec - 256;
+  end;
+  result := Copy(DecTo4ByteHex(256 - Dec), 3, 2);
+end;
+
+Function SaveHex(Filename: string; ProgrammLen: integer): boolean;
+var
+  f: TStringList;
+  str: string;
+  z: integer;
+
+begin
+  f := TStringList.Create;
+  for z := 0 to ProgrammLen do
+  begin
+    str := str + InstructionToString(z);
+    if Length(str) = 32 then
+    begin // Пора записывать
+      f.Add(':10' + DecTo4ByteHex(z * 2 - (Length(str) div 2) + 2) + '00' + str
+        + CRC('10' + DecTo4ByteHex(z * 2 - (Length(str) div 2) + 2) +
+        '00' + str));
+      str := '';
+    end;
+  end;
+  // Закончился цикл записи блоков по 16 слов (32 байт)
+  // Проверим, остались ли еще данные для записи
+  if Length(str) > 0 then
+  begin
+    f.Add(':' + Copy(DecTo4ByteHex((Length(str) div 2)), 3, 2) +
+      DecTo4ByteHex(z * 2 - (Length(str) div 2)) + '00' + str +
+      CRC(Copy(DecTo4ByteHex((Length(str) div 2)), 3, 2) + DecTo4ByteHex(z * 2 -
+      (Length(str) div 2)) + '00' + str));
+  end;
+  // Запишим конфигурацию
+
+  f.Add(':021FFE00' + InstructionToString(-1) +
+    CRC('021FFE00' + InstructionToString(-1)));
+  // Запишим конец
+  f.Add(':00000001FF');
+  f.SaveToFile(Filename);
+
+end;
+
+Function LoadHex(Filename: string): boolean;
+label
+  lblNI;
+var
+  f: TStringList;
+  i, j: integer;
+  LL, AAAA, tmp, TT: integer;
+  TmpS: string;
+  // На будущее - написать обработчик, ошибка может быть загрузки файла
+  // Также возможно будут другие типы строк (переменная ТТ)
+begin
+
+  LoadHex := false;
+  f := TStringList.Create;
+  f.LoadFromFile(Filename);
+  for i := 0 to f.Count - 1 do
+  begin
+    // Проверка на ошибку в строке - строка не может быть менее 11 символов
+    if Length(f.Strings[i]) < 11 then
+    begin
+      ErrorText := Gettext(1150) +' ('+Gettext(1151)+' #' + inttostr(i) +
+        ' '+Gettext(1152)+')';
+      f.Free;
+      exit;
+    end;
+    // Проверка на ошибку - строка должна начинаться с двоеточия
+    if Copy(f.Strings[i], 0, 1) <> ':' then
+    begin
+      ErrorText := Gettext(1150) +' ('+Gettext(1151)+' #' + inttostr(i) +
+        ' '+gettext(1153)+')';
+      f.Free;
+      exit;
+    end;
+    // Проверка на конец файла - если конец, то все ок, выходим.
+    if f.Strings[i] = ':00000001FF' then
+    begin
+      LoadHex := true;
+      f.Free;
+      exit;
+    end;
+    // Читаем размер строки в LL, а заодно проверяем на ошибку - 16 ричные ли там данные
+    LL := TwoByteHexToDec(Copy(f.Strings[i], 2, 2));
+    if LL = -1 then
+    begin
+      ErrorText := Gettext(1150) +' ('+Gettext(1151)+' #' + inttostr(i) +
+        ' '+gettext(1154)+')';
+      f.Free;
+      exit;
+    end;
+    // Проверка размера строки на четность, если нечет - то что-то здесь не так, не для этого мк видимо
+    if (LL mod 2) <> 0 then
+    begin
+      ErrorText := Gettext(1150) +' ('+Gettext(1151)+' #' + inttostr(i) +
+        ' '+gettext(1156)+')';
+      f.Free;
+      exit;
+    end;
+    // Читаем адрес записи(начальный)
+    tmp := TwoByteHexToDec(Copy(f.Strings[i], 4, 2));
+    if tmp = -1 then
+    begin
+      ErrorText := Gettext(1150) +' ('+Gettext(1151)+' #' + inttostr(i) +
+        ' '+gettext(1154)+')';
+      f.Free;
+      exit;
+    end;
+    AAAA := tmp * 256;
+    tmp := TwoByteHexToDec(Copy(f.Strings[i], 6, 2));
+    if tmp = -1 then
+    begin
+      ErrorText := Gettext(1150) +' ('+Gettext(1151)+' #' + inttostr(i) +
+        ' '+gettext(1154)+')';
+      f.Free;
+      exit;
+    end;
+    AAAA := AAAA + tmp;
+    // Читаем тип записи
+    TT := TwoByteHexToDec(Copy(f.Strings[i], 8, 2));
+    if TT = -1 then
+    begin
+      ErrorText := Gettext(1150) +' ('+Gettext(1151)+' #' + inttostr(i) +
+        ' '+gettext(1154)+')';
+      f.Free;
+      exit;
+    end;
+    // Если адрес = 8190 и TT=0, то это значит, что перед нами - конфигурация мк
+    if ((AAAA = 8190) and (TT = 0)) = true then
+    begin
+      if LL <> 2 then
+      begin
+        ErrorText := Gettext(1150) +' ('+Gettext(1151)+' #' + inttostr(i) +
+          ' '+gettext(1156)+')';
+        f.Free;
+        exit;
+      end;
+      // Первая треть слова в память
+      TmpS := OneByteHexToBin(Copy(f.Strings[i], 11, 1));
+      // Проверка на правильность данных
+      if TmpS = '' then
+      begin
+        ErrorText := Gettext(1150) +' ('+Gettext(1151)+' #' + inttostr(i) +
+          ' '+gettext(1154)+')';
+        f.Free;
+        exit;
+      end;
+      if Copy(TmpS, 2, 1) = '1' then
+        Set_Config(2, true)
+      else
+        Set_Config(2, false); // WDTE
+      if Copy(TmpS, 1, 1) = '1' then
+        Set_Config(3, true)
+      else
+        Set_Config(3, false); // \CP
+      // Вторая треть слова в память
+      TmpS := OneByteHexToBin(Copy(f.Strings[i], 10, 1));
+      // Проверка на правильность данных
+      if TmpS = '' then
+      begin
+        ErrorText := Gettext(1150) +' ('+Gettext(1151)+' #' + inttostr(i) +
+          ' '+gettext(1154)+')';
+        f.Free;
+        exit;
+      end;
+      if Copy(TmpS, 4, 1) = '1' then
+        Set_Config(4, true)
+      else
+        Set_Config(4, false); // GP3/\MCLR
+      goto lblNI;
+    end;
+
+    // Если тип - данные, то обрабатывать их
+    if TT = 0 then
+    begin
+      for j := 1 to (LL div 2) do
+      begin
+        // Первая треть слова в память
+        TmpS := OneByteHexToBin(Copy(f.Strings[i], 9 + (j * 4) - 2, 1));
+        // Проверка на правильность данных
+        if TmpS = '' then
+        begin
+          ErrorText := Gettext(1150) +' ('+Gettext(1151)+' #' + inttostr(i) +
+            ' '+gettext(1154)+')';
+          f.Free;
+          exit;
+        end;
+        if Copy(TmpS, 4, 1) = '1' then
+          Set_ROM((AAAA div 2) + j - 1, 0, true)
+        else
+          Set_ROM((AAAA div 2) + j - 1, 0, false);
+        if Copy(TmpS, 3, 1) = '1' then
+          Set_ROM((AAAA div 2) + j - 1, 1, true)
+        else
+          Set_ROM((AAAA div 2) + j - 1, 1, false);
+        if Copy(TmpS, 2, 1) = '1' then
+          Set_ROM((AAAA div 2) + j - 1, 2, true)
+        else
+          Set_ROM((AAAA div 2) + j - 1, 2, false);
+        if Copy(TmpS, 1, 1) = '1' then
+          Set_ROM((AAAA div 2) + j - 1, 3, true)
+        else
+          Set_ROM((AAAA div 2) + j - 1, 3, false);
+        // Вторая треть слова в память
+        TmpS := OneByteHexToBin(Copy(f.Strings[i], 9 + (j * 4) - 3, 1));
+        // Проверка на правильность данных
+        if TmpS = '' then
+        begin
+          ErrorText := Gettext(1150) +' ('+Gettext(1151)+' #' + inttostr(i) +
+            ' '+gettext(1154)+')';
+          f.Free;
+          exit;
+        end;
+        if Copy(TmpS, 4, 1) = '1' then
+          Set_ROM((AAAA div 2) + j - 1, 4, true)
+        else
+          Set_ROM((AAAA div 2) + j - 1, 4, false);
+        if Copy(TmpS, 3, 1) = '1' then
+          Set_ROM((AAAA div 2) + j - 1, 5, true)
+        else
+          Set_ROM((AAAA div 2) + j - 1, 5, false);
+        if Copy(TmpS, 2, 1) = '1' then
+          Set_ROM((AAAA div 2) + j - 1, 6, true)
+        else
+          Set_ROM((AAAA div 2) + j - 1, 6, false);
+        if Copy(TmpS, 1, 1) = '1' then
+          Set_ROM((AAAA div 2) + j - 1, 7, true)
+        else
+          Set_ROM((AAAA div 2) + j - 1, 7, false);
+        // Третья треть слова в память
+        TmpS := OneByteHexToBin(Copy(f.Strings[i], 9 + (j * 4), 1));
+        // Проверка на правильность данных
+        if TmpS = '' then
+        begin
+          ErrorText := Gettext(1150) +' ('+Gettext(1151)+' #' + inttostr(i) +
+            ' '+gettext(1154)+')';
+          f.Free;
+          exit;
+        end;
+        if Copy(TmpS, 4, 1) = '1' then
+          Set_ROM((AAAA div 2) + j - 1, 8, true)
+        else
+          Set_ROM((AAAA div 2) + j - 1, 8, false);
+        if Copy(TmpS, 3, 1) = '1' then
+          Set_ROM((AAAA div 2) + j - 1, 9, true)
+        else
+          Set_ROM((AAAA div 2) + j - 1, 9, false);
+        if Copy(TmpS, 2, 1) = '1' then
+          Set_ROM((AAAA div 2) + j - 1, 10, true)
+        else
+          Set_ROM((AAAA div 2) + j - 1, 10, false);
+        if Copy(TmpS, 1, 1) = '1' then
+          Set_ROM((AAAA div 2) + j - 1, 11, true)
+        else
+          Set_ROM((AAAA div 2) + j - 1, 11, false);
+      end;
+    end;
+
+  lblNI:
+  end;
+  ErrorText := gettext(1150)+' - ' + gettext(1155);
+  f.Free;
+end;
+
+Function TwoByteHexToDec(hex: string): integer;
+Var
+  tmp: string;
+  tmpres: integer;
+label lbl10;
+begin
+  // На будущее - добавить поддержку мелкого регистра букв ABCDEF
+  tmpres := 0;
+  tmp := Copy(hex, 1, 1);
+  if tmp = '0' then
+    goto lbl10;
+  if tmp = '1' then
+  begin
+    tmpres := 16;
+    goto lbl10;
+  end;
+  if tmp = '2' then
+  begin
+    tmpres := 32;
+    goto lbl10;
+  end;
+  if tmp = '3' then
+  begin
+    tmpres := 48;
+    goto lbl10;
+  end;
+  if tmp = '4' then
+  begin
+    tmpres := 64;
+    goto lbl10;
+  end;
+  if tmp = '5' then
+  begin
+    tmpres := 80;
+    goto lbl10;
+  end;
+  if tmp = '6' then
+  begin
+    tmpres := 96;
+    goto lbl10;
+  end;
+  if tmp = '7' then
+  begin
+    tmpres := 112;
+    goto lbl10;
+  end;
+  if tmp = '8' then
+  begin
+    tmpres := 128;
+    goto lbl10;
+  end;
+  if tmp = '9' then
+  begin
+    tmpres := 144;
+    goto lbl10;
+  end;
+  if tmp = 'A' then
+  begin
+    tmpres := 160;
+    goto lbl10;
+  end;
+  if tmp = 'B' then
+  begin
+    tmpres := 176;
+    goto lbl10;
+  end;
+  if tmp = 'C' then
+  begin
+    tmpres := 192;
+    goto lbl10;
+  end;
+  if tmp = 'D' then
+  begin
+    tmpres := 208;
+    goto lbl10;
+  end;
+  if tmp = 'E' then
+  begin
+    tmpres := 224;
+    goto lbl10;
+  end;
+  if tmp = 'F' then
+  begin
+    tmpres := 240;
+    goto lbl10;
+  end
+  else
+  begin
+    TwoByteHexToDec := -1;
+    exit;
+  end;
+
+lbl10:
+  tmp := Copy(hex, 2, 1);
+  if tmp = '0' then
+  begin
+    TwoByteHexToDec := tmpres;
+    exit;
+  end;
+  if tmp = '1' then
+  begin
+    TwoByteHexToDec := tmpres + 1;
+    exit;
+  end;
+  if tmp = '2' then
+  begin
+    TwoByteHexToDec := tmpres + 2;
+    exit;
+  end;
+  if tmp = '3' then
+  begin
+    TwoByteHexToDec := tmpres + 3;
+    exit;
+  end;
+  if tmp = '4' then
+  begin
+    TwoByteHexToDec := tmpres + 4;
+    exit;
+  end;
+  if tmp = '5' then
+  begin
+    TwoByteHexToDec := tmpres + 5;
+    exit;
+  end;
+  if tmp = '6' then
+  begin
+    TwoByteHexToDec := tmpres + 6;
+    exit;
+  end;
+  if tmp = '7' then
+  begin
+    TwoByteHexToDec := tmpres + 7;
+    exit;
+  end;
+  if tmp = '8' then
+  begin
+    TwoByteHexToDec := tmpres + 8;
+    exit;
+  end;
+  if tmp = '9' then
+  begin
+    TwoByteHexToDec := tmpres + 9;
+    exit;
+  end;
+  if tmp = 'A' then
+  begin
+    TwoByteHexToDec := tmpres + 10;
+    exit;
+  end;
+  if tmp = 'B' then
+  begin
+    TwoByteHexToDec := tmpres + 11;
+    exit;
+  end;
+  if tmp = 'C' then
+  begin
+    TwoByteHexToDec := tmpres + 12;
+    exit;
+  end;
+  if tmp = 'D' then
+  begin
+    TwoByteHexToDec := tmpres + 13;
+    exit;
+  end;
+  if tmp = 'E' then
+  begin
+    TwoByteHexToDec := tmpres + 14;
+    exit;
+  end;
+  if tmp = 'F' then
+  begin
+    TwoByteHexToDec := tmpres + 15;
+    exit;
+  end
+  else
+  begin
+    TwoByteHexToDec := -1;
+    exit;
+  end;
+
+end;
+
+Function OneByteHexToBin(hex: string): String;
+Var
+  tmp, tmp2: string;
+label lbl10;
+begin
+  // На будущее - регистр ABCDEF м.б. нижний - добавить поддержку
+  tmp := hex;
+  if tmp = '0' then
+  begin
+    tmp2 := '0000';
+    goto lbl10;
+  end;
+  if tmp = '1' then
+  begin
+    tmp2 := '0001';
+    goto lbl10;
+  end;
+  if tmp = '2' then
+  begin
+    tmp2 := '0010';
+    goto lbl10;
+  end;
+  if tmp = '3' then
+  begin
+    tmp2 := '0011';
+    goto lbl10;
+  end;
+  if tmp = '4' then
+  begin
+    tmp2 := '0100';
+    goto lbl10;
+  end;
+  if tmp = '5' then
+  begin
+    tmp2 := '0101';
+    goto lbl10;
+  end;
+  if tmp = '6' then
+  begin
+    tmp2 := '0110';
+    goto lbl10;
+  end;
+  if tmp = '7' then
+  begin
+    tmp2 := '0111';
+    goto lbl10;
+  end;
+  if tmp = '8' then
+  begin
+    tmp2 := '1000';
+    goto lbl10;
+  end;
+  if tmp = '9' then
+  begin
+    tmp2 := '1001';
+    goto lbl10;
+  end;
+  if tmp = 'A' then
+  begin
+    tmp2 := '1010';
+    goto lbl10;
+  end;
+  if tmp = 'B' then
+  begin
+    tmp2 := '1011';
+    goto lbl10;
+  end;
+  if tmp = 'C' then
+  begin
+    tmp2 := '1100';
+    goto lbl10;
+  end;
+  if tmp = 'D' then
+  begin
+    tmp2 := '1101';
+    goto lbl10;
+  end;
+  if tmp = 'E' then
+  begin
+    tmp2 := '1110';
+    goto lbl10;
+  end;
+  if tmp = 'F' then
+  begin
+    tmp2 := '1111';
+    goto lbl10;
+  end;
+  OneByteHexToBin := '';
+  exit;
+lbl10:
+  OneByteHexToBin := tmp2;
+end;
+
+Function HexToInt(hex: string): integer;
+var
+  tmpOrd, aDecVal, tmpI, len: integer;
+begin
+  aDecVal := 0;
+  len := Length(hex);
+  for tmpI := len downto 1 do
+  begin
+    tmpOrd := ord(hex[tmpI]);
+    case tmpOrd of
+      48:
+        aDecVal := aDecVal + (0 * trunc(power(16, (len - tmpI)))); // 0
+      49:
+        aDecVal := aDecVal + (1 * trunc(power(16, (len - tmpI)))); // 1
+      50:
+        aDecVal := aDecVal + (2 * trunc(power(16, (len - tmpI)))); // 2
+      51:
+        aDecVal := aDecVal + (3 * trunc(power(16, (len - tmpI)))); // 3
+      52:
+        aDecVal := aDecVal + (4 * trunc(power(16, (len - tmpI)))); // 4
+      53:
+        aDecVal := aDecVal + (5 * trunc(power(16, (len - tmpI)))); // 5
+      54:
+        aDecVal := aDecVal + (6 * trunc(power(16, (len - tmpI)))); // 6
+      55:
+        aDecVal := aDecVal + (7 * trunc(power(16, (len - tmpI)))); // 7
+      56:
+        aDecVal := aDecVal + (8 * trunc(power(16, (len - tmpI)))); // 8
+      57:
+        aDecVal := aDecVal + (9 * trunc(power(16, (len - tmpI)))); // 9
+      65:
+        aDecVal := aDecVal + (10 * trunc(power(16, (len - tmpI)))); // A
+      66:
+        aDecVal := aDecVal + (11 * trunc(power(16, (len - tmpI)))); // B
+      67:
+        aDecVal := aDecVal + (12 * trunc(power(16, (len - tmpI)))); // C
+      68:
+        aDecVal := aDecVal + (13 * trunc(power(16, (len - tmpI)))); // D
+      69:
+        aDecVal := aDecVal + (14 * trunc(power(16, (len - tmpI)))); // E
+      70:
+        aDecVal := aDecVal + (15 * trunc(power(16, (len - tmpI)))); // F
+    end;
+  end;
+  result := aDecVal;
+end;
+
+Function BinToInt(bin: string): integer;
+var
+  tmpOrd, aDecVal, tmpI, len: integer;
+begin
+  aDecVal := 0;
+  len := Length(bin);
+  for tmpI := len downto 1 do
+  begin
+    tmpOrd := ord(bin[tmpI]);
+    case tmpOrd of
+      48:
+        aDecVal := aDecVal + (0 * trunc(power(2, (len - tmpI)))); // 0
+      49:
+        aDecVal := aDecVal + (1 * trunc(power(2, (len - tmpI)))); // 1
+
+    end;
+  end;
+  result := aDecVal;
+end;
+
+procedure DecToParBin(Dec: integer);
+var
+  tmpI, tmpDec: integer;
+begin
+  tmpDec := Dec;
+  for tmpI := 20 downto 0 do
+  begin
+    if tmpDec >= power(2, tmpI) then
+    begin
+      tmpDec := tmpDec - trunc(power(2, tmpI));
+      parBin[tmpI] := true;
+    end
+    else
+      parBin[tmpI] := false;
+
+  end;
+
+end;
+
+end.

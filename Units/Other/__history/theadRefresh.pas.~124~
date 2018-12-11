@@ -1,0 +1,457 @@
+unit theadRefresh;
+
+interface
+uses
+  Classes,sysutils,mmsystem,forms,RVStyle, RVScroll, RichView, RVEdit;
+
+type
+  TChkSyntax = class(TThread)
+  private
+    { Private declarations }
+
+  protected
+    procedure Execute; override;
+
+  end;
+
+Procedure ChkSyntax_init();
+Function ChkSyntax_start():boolean;
+procedure ChkSyntax_termThread();
+function GetAllLineFromItem(RV:TCustomRichView; Item:integer; offs:integer; var StartItem,EndItem,LineNo,LineOffs:integer):string;
+Function Find_Item_From_Line(RV:TCustomRichView;Line:integer):integer;
+Procedure RememberCursorPos();
+Procedure RestoreCursorPos();
+
+implementation
+uses main;
+var
+LineToCheck:integer;
+ChkSyntax:TChkSyntax;
+scrollPos:integer;
+tCanRun:boolean;
+tRun:boolean;
+//Для процедур восстановления курсора
+xLineNo,xLineoffs:integer;
+
+function myGetItemText(RV:TCustomRichView; Item:integer):string;
+begin
+myGetItemText:=rv.GetItemTextA(item);
+if rv.GetItemStyle(item)=rvsTab then myGetItemText:=#09;
+
+end;
+
+Function Find_Item_From_Line(RV:TCustomRichView;Line:integer):integer;
+label
+lblCycle;
+var I_C:integer; // Количество итем (общее)
+S_I:integer; // Начальная итема для поиска
+M_I:integer; //Средняя итема для поиска
+E_I:integer; // Конечная итема для поиска
+//I:integer; //Для циклов
+begin
+I_C:=RV.ItemCount;
+if (Line<1) or (line>rv.GetLineNo(I_C-1,0)) then
+  begin
+  Result:=-1; //Возвратим ошибку (что нет такой линии тут)
+  exit;
+  end;
+S_I:=0; //Сначала будем искать с начала
+E_I:=I_C; //И до конца
+
+lblCycle:
+
+M_I:=((E_I-S_I) div 2)+S_I ;
+
+If Line<rv.GetLineNo(M_I,0) then
+  begin
+    E_I:=M_I-1;
+    goto lblCycle;
+  end;
+
+If Line>rv.GetLineNo(M_I,0) then
+  begin
+    S_I:=M_I+1;
+    goto lblCycle;
+  end;
+Result:=M_I;
+
+
+
+end;
+
+function GetAllLineFromItem(RV:TCustomRichView; Item:integer; offs:integer; var StartItem,EndItem,LineNo,LineOffs:integer):string;
+label
+lblToRight, LblToLeft, lblToRightStart, LblGotText;
+var tmpLineNo, tmpI,tmpJ, MaxItem,tmp:integer;
+ResultS:string;
+begin
+//Определим строку данной итемы
+LineNo:=RV.GetLineNo(Item,offs);
+//Будем искать еще итемы на данной строке
+//Сперва на убывание
+tmpI:=Item;
+lblToLeft:
+StartItem:=tmpI;
+tmpI:=tmpI-1;
+if tmpI<0 then
+  begin
+  tmpI:=0;
+  goto lblToRightStart;
+  end;
+if rv.getlineno(tmpI,0)=LineNo then goto lblToLeft;
+
+lblToRightStart:
+//Определим offs в строке
+LineOffs:=0;
+for tmpJ:=tmpI to Item-1 do LineOffs:=LineOffs+Length(myGetItemText(rv,tmpJ));
+//
+//for tmpJ:=tmpI to Item-1 do
+//begin
+//tmp:=Length(myGetItemText(rv,tmpJ));
+//LineOffs:=LineOffs+tmp;
+//if tmp='' then LineOffs:=LineOffs+1;
+//end;
+//
+LineOffs:=LineOffs+offs;
+//Теперь ищем на возрастание
+MaxItem:=rv.ItemCount-1;
+tmpI:=item;
+lblToRight:
+EndItem:=tmpI;
+
+tmpI:=tmpI+1;
+if tmpI>MaxItem then goto LblGotText;
+if rv.getlineno(tmpI,0)=LineNo then goto lblToRight;
+//Теперь соберем текст
+LblGotText:
+resultS:='';
+for tmpI := StartItem to EndItem do
+  begin
+   Results:=ResultS+rv.GetItemText(tmpI);
+   //if rv.GetItemStyle(tmpI)=rvsTab  then Results:=ResultS+#9;
+
+  end;
+result:=results;
+
+
+
+end;
+
+Procedure RememberCursorPos();
+var StartItem,EndItem,LineOffs,I,ImCurIt,ImCurOf,Ln:integer;
+itmText:string;
+begin
+ImCurIt:=main.MainForm.AsmChild.RVE.CurItemNo;
+ImCurOf:=main.MainForm.AsmChild.RVE.OffsetInCurItem;
+xLineNo:=main.MainForm.AsmChild.RVE.GetLineNo(ImCurIt,ImCurOf);
+GetAllLineFromItem( main.MainForm.AsmChild.RVE,ImCurIt,
+ImCurOf,StartItem,EndItem,Ln,LineOffs);
+xLineOffs:=0;
+for I := StartItem to ImCurIt-1 do
+  begin
+    itmText:=main.MainForm.AsmChild.RVE.GetItemText(I);
+    xLineOffs:=xLineOffs+Length(itmText);
+   // if main.MainForm.AsmChild.RVE.GetItemStyle(I) then xLineOffs:=xLineOffs+1;
+
+    if itmText='' then xLineOffs:=xLineOffs+1;
+  end;
+xLineOffs:=xLineOffs+ImCurOf-1;
+//if main.MainForm.AsmChild.RVE.getitem then
+
+end;
+
+Procedure RestoreCursorPos();
+label lblEnd;
+var StartItem,EndItem,LineOffs,I,ln:integer;
+ItmInLn,itmLn:integer;
+NewItemNo,NewItemOff:integer;
+begin
+//Найдем какую-нибудь итему в строке
+ItmInLn:=Find_Item_From_Line( main.MainForm.AsmChild.RVE,xLineNo);
+//Получим все параметры
+GetAllLineFromItem( main.MainForm.AsmChild.RVE,ItmInLn,
+main.MainForm.AsmChild.RVE.OffsetInCurItem,StartItem,EndItem,ln,LineOffs);
+NewItemNo:=StartItem;
+NewItemOff:=0;
+for I := StartItem to EndItem do
+  begin
+    ItmLn:=Length(main.MainForm.AsmChild.RVE.GetItemText(I));
+
+
+    if itmLn>=xLineOffs then
+      begin  //В итеме находится нужная позиция
+       NewItemNo:=I;
+       NewItemOff:=xLineOffs;
+       goto lblEnd;
+      end
+    else
+      begin //Не в этой итеме находится позиция
+      if ItmLn=0 then ItmLn:=1;
+        xLineOffs:=xLineOffs-itmLn;
+      end;
+
+  end;
+
+lblEnd:
+main.MainForm.AsmChild.RVE.SetSelectionBounds(NewItemNo,NewItemOff+1,NewItemNo,NewItemOff+1);
+end;
+
+Procedure ChkSyntax_init();
+
+begin
+  //Создание потока проверки синтаксиса
+  {ChkSyntax:=TChkSyntax.Create(true);
+ChkSyntax.FreeOnTerminate:=false;
+ChkSyntax.Priority:= tpLower;  }
+{if ChkSyntax<>nil then
+begin
+chkSyntax.Free;
+end;
+ChkSyntax:=TChkSyntax.Create(true);
+ChkSyntax.FreeOnTerminate:=false;
+ChkSyntax.Priority:= tplowest; }
+
+end;
+
+procedure ChkSyntax_termThread();
+begin
+  tCanRun:=false;
+end;
+
+Function ChkSyntax_start():boolean;
+begin
+ if   tRun then
+  begin
+  ChkSyntax_start:=false;
+  exit;
+  end;
+
+ ChkSyntax:=TChkSyntax.Create(true);
+ChkSyntax.FreeOnTerminate:=false;
+ChkSyntax.Priority:= tplowest;
+ tCanRun:=true;
+ Chksyntax.Start;
+ ChkSyntax_start:=true;
+end;
+
+
+{Procedure ChkSyntax_start();
+label lblZanovo,lbl4first;
+begin
+ {co:=TRun.Create(true);
+
+co.FreeOnTerminate:=false; //Добавил 23.04.2014
+co.Priority:= tpNormal;
+co.Start;
+
+//Для первого раза
+if chksyntax=nil  then goto lbl4first;
+
+if  not ChkSyntax.Finished  then
+  begin
+   tCanRun:=false;
+   //application.ProcessMessages;
+  // chkSyntax.DoTerminate;
+  TerminateThread
+
+   application.ProcessMessages;
+
+lblZanovo:
+
+    if   tRun  then goto lblZanovo;
+
+  end;
+
+//main.MainForm.AsmChild.alload:=false;
+lbl4first:
+
+
+tCanRun:=true;
+Chksyntax.Start;
+
+
+  { if  ChkSyntax.Suspended  then  ChkSyntax.Resume
+    else
+      begin
+        chkSyntax.terminate;
+         ChkSyntax.start;
+      end;
+end;    }
+Procedure CheckLines();
+label lblDelAg,lPP;
+var lcl,lc,I,rv_width:integer;
+tmplc:Real;
+
+begin
+ //Временный код, здесь идет перебор, кот необходимо заменить на более рациональный код
+    //showmessage(aInd.ToString());
+    lc:=main.MainForm.AsmChild.rve.GetLineNo(main.MainForm.AsmChild.rve.ItemCount-1,0);
+        //Ресайз RV и RVE в зависимости от рассчитанного значения кол-ва строк
+    tmplc:=lc;
+    rv_width:=28;
+
+lPP:
+    rv_width:=rv_width+8;
+    tmplc:=tmplc / 10;
+    if tmplc>=1 then goto lPP;
+
+    main.MainForm.AsmChild.rv.Width:=rv_width; //соответственно изменим параметры в зав-ти от rv_width
+    main.MainForm.AsmChild.rve.Left:=rv_width;
+    main.MainForm.AsmChild.rve.Width:=main.MainForm.AsmChild.clientwidth-main.MainForm.AsmChild.rve.Left;
+
+    lcl:=main.MainForm.AsmChild.rv.GetLineNo(main.MainForm.AsmChild.rv.ItemCount-1,0);
+    if lcl=lc then  exit; //Если не изменилось кол-во строк
+    //В общем, здесь изменилось кол-во строк
+
+    if lcl<lc then
+   begin //Стало больше строк
+    for I:=lcl+1 to lc do
+      begin
+         main.MainForm.AsmChild.rvbp.AddNL('',0,0);
+          main.MainForm.AsmChild.rvbp.AddBulletEx( '',3,main.MainForm.AsmChild.il_bullet,-1);
+            //добавление #строки
+      if ((i=1) or ((i mod 10)=0)) then main.MainForm.AsmChild.rv.AddNL(inttostr(I),0,0)
+        else
+          if ((i mod 5)=0) then main.MainForm.AsmChild.rv.AddNL('-',0,0)
+            else  main.MainForm.AsmChild.rv.AddNL ('•',0,0);
+      end;
+    end
+    else //Стало меньше строк
+    begin
+      for I := lc+1 to lcl   do main.MainForm.AsmChild.rvbp.DeleteItems((main.MainForm.AsmChild.rve.GetLineNo(main.MainForm.AsmChild.rve.ItemCount-1 ,0) *2),2);
+         lblDelAg:
+         main.MainForm.AsmChild.rv.DeleteItems(main.MainForm.AsmChild.rv.ItemCount-1,1);
+         if main.MainForm.AsmChild.rv.GetLineNo(main.MainForm.AsmChild.rv.ItemCount-1,0)>lc then goto lblDelAg;
+
+
+
+    end;
+
+
+
+    main.MainForm.AsmChild.RV.VScrollPos:=main.MainForm.AsmChild.RVE.VScrollPos;
+    main.MainForm.AsmChild.RVbp.VScrollPos:=main.MainForm.AsmChild.RVE.VScrollPos;
+    main.MainForm.AsmChild.rvbp.Format;
+    main.MainForm.AsmChild.rv.Format;
+end;
+
+Procedure CheckLine();
+//var si,ei,ln,lo:integer;
+var
+bIt,eIt,ItemsDelta,I:integer;
+sIt,sOf,sIt2,sOf2,sLn,tmpLN,tmpIt:integer;
+ItemFromLine:integer;
+hScrollPos:integer;
+aBP,eBP:boolean;
+begin
+
+//main.MainForm.AsmChild.alload:=false;
+//GetAllLineFromItem( main.MainForm.AsmChild.RVE,Find_Item_From_Line(main.MainForm.AsmChild.RVE,LineToCheck),0,si,ei,ln,lo);
+//Для восстановления курсора
+//main.MainForm.AsmChild.RVE.GetSelectionBounds(sIt,sOf,sIt2,sOf2,false);
+
+//sIt:=main.MainForm.AsmChild.RVE.CurItemNo;
+//sOf:=main.MainForm.AsmChild.RVE.OffsetInCurItem;
+//bIt:=main.MainForm.AsmChild.RVE.ItemCount;
+
+//sLn:=main.MainForm.AsmChild.RVE.GetLineNo(sIt,sOf);
+//ScrollPos:=main.MainForm.AsmChild.rve.VScrollPos;
+//hScrollPos:=main.MainForm.AsmChild.rve.hScrollPos;
+//main.MainForm.AsmChild.RVE.BeginUpdate;
+
+ItemFromLine:=Find_Item_From_Line(main.MainForm.AsmChild.RVE,LineToCheck);
+
+main.MainForm.AsmChild.CheckSynLine(ItemFromLine,false);
+aBP:=false;
+eBP:=false;
+for I := 1  to main.MainForm.AsmChild.aInd do
+  begin
+    if main.MainForm.AsmChild.aCaD[I-1].isInstruction then
+      begin
+       aBP:=true;
+       tmpIt:=main.MainForm.AsmChild.aCaD[I-1].ItemNo;
+       if main.MainForm.AsmChild.RVE.GetItemTag(tmpIt)='B' then
+          begin
+          eBP:=true;
+          end;
+      end;
+  end;
+if aBP then
+  if eBP then main.MainForm.AsmChild.RVbp.SetBulletInfo(LineToCheck*2-1,'',0,nil,'') else main.MainForm.AsmChild.RVbp.SetBulletInfo(LineToCheck*2-1,'',2,nil,'')
+else main.MainForm.AsmChild.RVbp.SetBulletInfo(LineToCheck*2-1,'',3,nil,'');
+
+main.MainForm.AsmChild.RVbp.Format;
+
+//Восстановим курсор
+
+
+application.ProcessMessages;
+end;
+
+procedure TChkSyntax.Execute;
+label lblexit;
+var X,Y: integer; //Положение курсора (текущее)
+sX,sY: integer; //Исходное положение курсора
+sItemNo, sOffs:integer; //Изначальный номер итемы и офсетов
+sLineText:string;   //Текст текущей строки
+sStartItem,sEndItem: integer; //Начальная итема на строке и конечная
+I:integer; //Для циклов
+begin
+with main.MainForm.AsmChild do
+begin
+tRun:=true;
+if not tCanRun then goto lblExit;
+//Определим точно положение курсора (исходное)
+{Synchronize(
+  procedure
+  begin}
+SItemNo:=RVE.CurItemNo;
+sOffs:=RVE.OffsetInCurItem;
+sLineText:=GetAllLineFromItem( rve,sItemNo,sOffs, sStartItem,sEndItem,sY,sX);
+  //end);
+//Заполним RV и RVBP при необходимости
+{Synchronize(CheckLines);
+
+if not tCanRun then goto lblExit; }
+//Выровняем количество BP и № строк
+
+//Проверим текущую строку и пойдем вверх
+for I := Sy  downto 1 do
+  begin
+   LineToCheck:=I;
+   //Положение скролла
+
+if not tCanRun then goto lblExit;
+   Synchronize(CheckLine);
+if not tCanRun then goto lblExit;
+   //sleep(5);
+
+  end;
+
+//Пойдем вниз
+//Проверим текущую строку и пойдем вверх
+sLineText:=GetAllLineFromItem( rve,sItemNo,sOffs, sStartItem,sEndItem,sY,sX);
+for I := Sy+1  to rve.GetLineNo(rve.ItemCount-1,0) do
+  begin
+   LineToCheck:=I;
+   //Положение скролла
+
+if not tCanRun then goto lblExit;
+   Synchronize(CheckLine);
+if not tCanRun then goto lblExit;
+
+   //sleep(5);
+
+  end;
+end;
+
+
+
+//Пройдем назад
+//Пройдем вперед
+lblExit:
+//
+tRun:=false;
+end;
+
+end.
