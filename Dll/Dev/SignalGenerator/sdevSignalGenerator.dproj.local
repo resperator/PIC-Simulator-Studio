@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.514,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\SignalGenerator\frmSettings.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.162,E:\YandexDisk\Проекты\Simulator\Dll\Dev\SignalGenerator\graphics\Settings window\Rect.png=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.017,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\SignalGenerator\UnitRes.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.958,=E:\YandexDisk\Проекты\Simulator\Units\Other\unitClasses4Devices.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.475,C:\Users\Анатолий\Documents\Embarcadero\Studio\Projects\Project1.dproj=E:\YandexDisk\Проекты\Simulator\Dll\Dev\SignalGenerator\SignalGenerator.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.618,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\SignalGenerator\graphics\Settings window\tri.png</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.250,E:\YandexDisk\Проекты\Simulator\Dll\Dev\SignalGenerator\graphics\Settings window\tri.png=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.770,E:\YandexDisk\Проекты\Simulator\Dll\Dev\SignalGenerator\SignalGenerator.dproj=E:\YandexDisk\Проекты\Simulator\Dll\Dev\SignalGenerator\sdevSignalGenerator.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.521,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\SignalGenerator\graphics\Settings window\Rect.png</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.470,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\SignalGenerator\graphics\Img\squ.bmp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.437,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\SignalGenerator\graphics\Img\Sin.bmp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.280,E:\YandexDisk\Проекты\Simulator\Dll\Dev\SignalGenerator\graphics\Settings window\Sin.png=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.405,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\SignalGenerator\graphics\Img\sawNR.bmp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.593,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\SignalGenerator\graphics\Settings window\Sin.png</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.312,E:\YandexDisk\Проекты\Simulator\Dll\Dev\SignalGenerator\graphics\Settings window\Saw.png=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.544,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\SignalGenerator\graphics\Settings window\Saw.png</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.219,E:\YandexDisk\Проекты\Simulator\Dll\Dev\SignalGenerator\graphics\Settings window\SawNR.png=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.582,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\SignalGenerator\graphics\tlb.ico</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.568,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\SignalGenerator\graphics\Settings window\SawNR.png</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.503,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\SignalGenerator\graphics\Img\tri.bmp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.372,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\SignalGenerator\graphics\Img\saw.bmp</Transaction>
+  </Transactions>
+</BorlandProject>

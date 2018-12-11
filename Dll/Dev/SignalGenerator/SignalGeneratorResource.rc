@@ -1,0 +1,6 @@
+tlb ICON "graphics\\tlb.ico"
+saw BITMAP "graphics\\Img\\saw.bmp"
+sawNR BITMAP "graphics\\Img\\sawNR.bmp"
+sin BITMAP "graphics\\Img\\Sin.bmp"
+rect BITMAP "graphics\\Img\\squ.bmp"
+tri BITMAP "graphics\\Img\\tri.bmp"

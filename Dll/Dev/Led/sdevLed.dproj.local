@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.172,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\graphics\Img\White0.bmp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.187,=E:\YandexDisk\Проекты\Simulator\graphic\Dev\Dev_led2.png</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.987,=E:\yandex.disk\Проекты\Simulator\graphic\Dev\Dev_Led.ico</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.039,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\graphics\Img\red1.bmp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.413,E:\YandexDisk\Проекты\Simulator\graphic\Dev\Dev_led2.png=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.730,=E:\YandexDisk\Проекты\Simulator\graphic\Dev\led.ico</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.100,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\graphics\Img\Green0.bmp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.210,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\graphics\Img\White1.bmp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.554,=E:\yandex.disk\Проекты\Simulator\graphic\Dev\Led\Red0.bmp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.965,E:\yandex.disk\Проекты\Simulator\graphic\Dev\Dev_Led.ico=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.166,=E:\yandex.disk\Проекты\Simulator\graphic\Dev\Led\red1.ico</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.494,E:\yandex.disk\Проекты\Simulator\graphic\Dev\Led\red1.ico=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.032,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\graphics\Img\Blue0.bmp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.055,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\graphics\tlb.ico</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.583,=E:\yandex.disk\Проекты\Simulator\graphic\Dev\Led\red1.bmp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.023,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\graphics\Img\Red0.bmp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.116,E:\yandex.disk\Проекты\Simulator\Dll\Dev\Led\sdevLed.dproj=C:\Users\Анатолий\Documents\RAD Studio\Projects\Project1.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.067,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\graphics\Img\Blue1.bmp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.282,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\graphics\Img\Yellow1.bmp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.454,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.617,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.118,E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\Unit1.pas=E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\frmSettings.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.040,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.437,=E:\YandexDisk\Проекты\Simulator\graphic\Dev\Dev_led2.ico</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.119,E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\Unit1.dfm=E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\frmSettings.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.245,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\graphics\Img\Yellow0.bmp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.676,E:\YandexDisk\Проекты\Simulator\graphic\Dev\Dev_led2.ico=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.970,E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\Unit1.dfm=E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\frmSettings.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.970,E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\Unit1.pas=E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\frmSettings.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.953,=E:\yandex.disk\Проекты\Simulator\Dll\Dev\Led\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.131,=E:\yandex.disk\Проекты\Simulator\graphic\Dev\Led\Red0.ico</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.197,E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\frmSettings.pas=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.517,=E:\yandex.disk\Проекты\Simulator\Dll\Dev\Led\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.522,E:\yandex.disk\Проекты\Simulator\graphic\Dev\Led\Red0.ico=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.433,E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\UnitRes.pas=E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.577,=E:\yandex.disk\Проекты\Simulator\Units\Other\unitClasses4Devices.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.994,=E:\yandex.disk\Проекты\Simulator\graphic\Dev\Dev_led2.ico</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.138,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\graphics\Img\Green1.bmp</Transaction>
+  </Transactions>
+</BorlandProject>
