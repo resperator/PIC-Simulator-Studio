@@ -1,0 +1,10 @@
+Начальная инициализация
+Проверка регистрации
+Поиск библиотек устройств
+Загрузка библиотеки устройств:
+[Loading]E:\YandexDisk\Проекты\Simulator\Dll\Dev\Key\Win32\Debug\sdevKey.atcdev
+[Ok]E:\YandexDisk\Проекты\Simulator\Dll\Dev\Key\Win32\Debug\sdevKey.atcdev
+[Loading]E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\Win32\Debug\sdevLed.atcdev
+[Ok]E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\Win32\Debug\sdevLed.atcdev
+[Loading]E:\YandexDisk\Проекты\Simulator\Dll\Mcu\PIC10F\Win32\Debug\mcPIC10F.dll
+[Ok]E:\YandexDisk\Проекты\Simulator\Dll\Mcu\PIC10F\Win32\Debug\mcPIC10F.dll

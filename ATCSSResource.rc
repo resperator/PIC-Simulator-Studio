@@ -1,0 +1,6 @@
+gSfrEn BITMAP "graphic\\Ide\\SFR.bmp"
+gGprRu BITMAP "graphic\\Ide\\GPR — RUS.bmp"
+gGprEn BITMAP "graphic\\Ide\\GPR.bmp"
+gSfrRu BITMAP "graphic\\Ide\\SFR — RUS.bmp"
+gStackRu BITMAP "graphic\\Ide\\Stack — RUS.bmp"
+gStackEn BITMAP "graphic\\Ide\\Stack.bmp"

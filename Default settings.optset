@@ -1,0 +1,23 @@
+﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+		<PropertyGroup>
+			<DCC_CodePage>1</DCC_CodePage>
+			<DCC_PentiumSafeDivide>true</DCC_PentiumSafeDivide>
+			<DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+			<DCC_TypedAtParameter>true</DCC_TypedAtParameter>
+			<DCC_RangeChecking>true</DCC_RangeChecking>
+			<DCC_RunTimeTypeInfo>true</DCC_RunTimeTypeInfo>
+			<DCC_FullBooleanEvaluations>true</DCC_FullBooleanEvaluations>
+			<DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
+			<DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
+			<DCC_DebugDCUs>true</DCC_DebugDCUs>
+			<DCC_WriteableConstants>true</DCC_WriteableConstants>
+		</PropertyGroup>
+		<ProjectExtensions>
+			<Borland.Personality>Delphi.Personality.12</Borland.Personality>
+			<Borland.ProjectType>OptionSet</Borland.ProjectType>
+			<BorlandProject>
+				<Delphi.Personality/>
+			</BorlandProject>
+			<ProjectFileVersion>12</ProjectFileVersion>
+		</ProjectExtensions>
+	</Project>

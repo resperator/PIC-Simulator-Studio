@@ -1,0 +1,132 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{F61102BD-8C01-4085-9DEC-8D7B7FBA8BB9}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="ATCSS.dproj">
+            <Dependencies>Dll\Dev\AnalogSource\sdevAnalogSource.dproj;Dll\Mcu\PIC10F\mcPIC10F.dproj;Dll\Dev\Led\sdevLed.dproj;Dll\Dev\Key\sdevKey.dproj;Dll\Dev\Counter\sdevCounter.dproj;Dll\Dev\SignalGenerator\sdevSignalGenerator.dproj;Dll\Dev\7SegmentIndicator\sdev7SegmentIndicator.dproj;Dll\Dev\Label\sdevLabel.dproj</Dependencies>
+        </Projects>
+        <Projects Include="Dll\Mcu\PIC10F\mcPIC10F.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Dll\Dev\Led\sdevLed.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Dll\Dev\Key\sdevKey.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Dll\Dev\Counter\sdevCounter.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Dll\Dev\SignalGenerator\sdevSignalGenerator.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Dll\Dev\7SegmentIndicator\sdev7SegmentIndicator.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Dll\Dev\Label\sdevLabel.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Dll\Dev\AnalogSource\sdevAnalogSource.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="ATCSS" DependsOnTargets="sdevAnalogSource;mcPIC10F;sdevLed;sdevKey;sdevCounter;sdevSignalGenerator;sdev7SegmentIndicator;sdevLabel">
+        <MSBuild Projects="ATCSS.dproj"/>
+    </Target>
+    <Target Name="ATCSS:Clean" DependsOnTargets="sdevAnalogSource:Clean;mcPIC10F:Clean;sdevLed:Clean;sdevKey:Clean;sdevCounter:Clean;sdevSignalGenerator:Clean;sdev7SegmentIndicator:Clean;sdevLabel:Clean">
+        <MSBuild Projects="ATCSS.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ATCSS:Make" DependsOnTargets="sdevAnalogSource:Make;mcPIC10F:Make;sdevLed:Make;sdevKey:Make;sdevCounter:Make;sdevSignalGenerator:Make;sdev7SegmentIndicator:Make;sdevLabel:Make">
+        <MSBuild Projects="ATCSS.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="mcPIC10F">
+        <MSBuild Projects="Dll\Mcu\PIC10F\mcPIC10F.dproj"/>
+    </Target>
+    <Target Name="mcPIC10F:Clean">
+        <MSBuild Projects="Dll\Mcu\PIC10F\mcPIC10F.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="mcPIC10F:Make">
+        <MSBuild Projects="Dll\Mcu\PIC10F\mcPIC10F.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="sdevLed">
+        <MSBuild Projects="Dll\Dev\Led\sdevLed.dproj"/>
+    </Target>
+    <Target Name="sdevLed:Clean">
+        <MSBuild Projects="Dll\Dev\Led\sdevLed.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="sdevLed:Make">
+        <MSBuild Projects="Dll\Dev\Led\sdevLed.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="sdevKey">
+        <MSBuild Projects="Dll\Dev\Key\sdevKey.dproj"/>
+    </Target>
+    <Target Name="sdevKey:Clean">
+        <MSBuild Projects="Dll\Dev\Key\sdevKey.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="sdevKey:Make">
+        <MSBuild Projects="Dll\Dev\Key\sdevKey.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="sdevCounter">
+        <MSBuild Projects="Dll\Dev\Counter\sdevCounter.dproj"/>
+    </Target>
+    <Target Name="sdevCounter:Clean">
+        <MSBuild Projects="Dll\Dev\Counter\sdevCounter.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="sdevCounter:Make">
+        <MSBuild Projects="Dll\Dev\Counter\sdevCounter.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="sdevSignalGenerator">
+        <MSBuild Projects="Dll\Dev\SignalGenerator\sdevSignalGenerator.dproj"/>
+    </Target>
+    <Target Name="sdevSignalGenerator:Clean">
+        <MSBuild Projects="Dll\Dev\SignalGenerator\sdevSignalGenerator.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="sdevSignalGenerator:Make">
+        <MSBuild Projects="Dll\Dev\SignalGenerator\sdevSignalGenerator.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="sdev7SegmentIndicator">
+        <MSBuild Projects="Dll\Dev\7SegmentIndicator\sdev7SegmentIndicator.dproj"/>
+    </Target>
+    <Target Name="sdev7SegmentIndicator:Clean">
+        <MSBuild Projects="Dll\Dev\7SegmentIndicator\sdev7SegmentIndicator.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="sdev7SegmentIndicator:Make">
+        <MSBuild Projects="Dll\Dev\7SegmentIndicator\sdev7SegmentIndicator.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="sdevLabel">
+        <MSBuild Projects="Dll\Dev\Label\sdevLabel.dproj"/>
+    </Target>
+    <Target Name="sdevLabel:Clean">
+        <MSBuild Projects="Dll\Dev\Label\sdevLabel.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="sdevLabel:Make">
+        <MSBuild Projects="Dll\Dev\Label\sdevLabel.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="sdevAnalogSource">
+        <MSBuild Projects="Dll\Dev\AnalogSource\sdevAnalogSource.dproj"/>
+    </Target>
+    <Target Name="sdevAnalogSource:Clean">
+        <MSBuild Projects="Dll\Dev\AnalogSource\sdevAnalogSource.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="sdevAnalogSource:Make">
+        <MSBuild Projects="Dll\Dev\AnalogSource\sdevAnalogSource.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="ATCSS;mcPIC10F;sdevLed;sdevKey;sdevCounter;sdevSignalGenerator;sdev7SegmentIndicator;sdevLabel;sdevAnalogSource"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="ATCSS:Clean;mcPIC10F:Clean;sdevLed:Clean;sdevKey:Clean;sdevCounter:Clean;sdevSignalGenerator:Clean;sdev7SegmentIndicator:Clean;sdevLabel:Clean;sdevAnalogSource:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="ATCSS:Make;mcPIC10F:Make;sdevLed:Make;sdevKey:Make;sdevCounter:Make;sdevSignalGenerator:Make;sdev7SegmentIndicator:Make;sdevLabel:Make;sdevAnalogSource:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

@@ -1,0 +1,66 @@
+object frmConfigBits: TfrmConfigBits
+  Left = 0
+  Top = 0
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsSingle
+  Caption = '6'
+  ClientHeight = 430
+  ClientWidth = 451
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  OnActivate = FormActivate
+  OnCreate = FormCreate
+  PixelsPerInch = 96
+  TextHeight = 13
+  object RT: TRichEdit
+    Left = 0
+    Top = 280
+    Width = 449
+    Height = 114
+    Enabled = False
+    Font.Charset = RUSSIAN_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+    ReadOnly = True
+    TabOrder = 0
+    Zoom = 100
+  end
+  object btnCancel: TButton
+    Left = 352
+    Top = 395
+    Width = 97
+    Height = 35
+    Cancel = True
+    Caption = 'Cancel'
+    TabOrder = 1
+    OnClick = btnCancelClick
+  end
+  object Button1: TButton
+    Left = 249
+    Top = 395
+    Width = 97
+    Height = 35
+    Caption = 'OK'
+    Default = True
+    TabOrder = 2
+    OnClick = Button1Click
+  end
+  object scrl: TScrollBar
+    Left = 435
+    Top = 1
+    Width = 13
+    Height = 279
+    Enabled = False
+    Kind = sbVertical
+    PageSize = 0
+    TabOrder = 3
+  end
+end
