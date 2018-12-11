@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.978,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\7SegmentIndicator\graphics\tlb.ico</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.485,E:\YandexDisk\Проекты\Simulator\Dll\Dev\7SegmentIndicator\sdev7SegmentIndicator.dproj=C:\Users\Анатолий\Documents\Embarcadero\Studio\Projects\Project1.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.557,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\graphics\Img\red1.bmp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.511,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\graphics\Img\Red0.bmp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.902,E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\graphics\Img\Red0.bmp=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.424,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\7SegmentIndicator\graphics\img\720px-7-segmentG.bmp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.430,E:\YandexDisk\Проекты\Simulator\Dll\Dev\Key\graphics\Img\Blue0.bmp=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.385,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\Key\graphics\Img\Blue0.bmp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.024,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\7SegmentIndicator\graphics\img\720px-7-segmentY.bmp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.866,E:\YandexDisk\Проекты\Simulator\Dll\Dev\Led\graphics\Img\red1.bmp=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.989,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\7SegmentIndicator\graphics\img\720px-7-segmentB.bmp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.449,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\7SegmentIndicator\graphics\img\720px-7-segmentR.bmp</Transaction>
+  </Transactions>
+</BorlandProject>

@@ -1,0 +1,5 @@
+tlb ICON "graphics\\tlb.ico"
+Green BITMAP "graphics\\img\\720px-7-segmentG.bmp"
+Red BITMAP "graphics\\img\\720px-7-segmentR.bmp"
+Blue BITMAP "graphics\\img\\720px-7-segmentB.bmp"
+Yellow BITMAP "graphics\\img\\720px-7-segmentY.bmp"

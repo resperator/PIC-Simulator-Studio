@@ -1,0 +1,3 @@
+tlb ICON "Graphic\\tlb.ico"
+Back BITMAP "Graphic\\Img\\Back.bmp"
+Slider BITMAP "Graphic\\Img\\Slider.bmp"

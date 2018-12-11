@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.892,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\AnalogSource\Graphic\Img\Slider.bmp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.054,E:\YandexDisk\Проекты\Simulator\Dll\Dev\AnalogSource\sdevAnalogSource.dproj=C:\Users\Анатолий\Documents\Embarcadero\Studio\Projects\Project1.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.376,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\AnalogSource\Graphic\tlb.ico</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.864,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\AnalogSource\Graphic\Img\Back.bmp</Transaction>
+  </Transactions>
+</BorlandProject>
