@@ -1,0 +1,4 @@
+tlb ICON "graphics\\tlb.ico"
+Frame BITMAP "graphics\\Img\\Frame.bmp"
+Res0 BITMAP "graphics\\Img\\Res0.bmp"
+Res1 BITMAP "graphics\\Img\\Res1.bmp"

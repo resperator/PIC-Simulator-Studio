@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.007,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\Counter\graphics\Img\Res1.bmp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.667,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\Counter\UnitRes.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.576,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\Counter\graphics\tlb.ico</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.724,C:\Users\Анатолий\Documents\Embarcadero\Studio\Projects\sdevCounter.dproj=C:\Users\Анатолий\Documents\Embarcadero\Studio\Projects\Project1.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.000,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\Counter\frmSettings.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.941,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\Counter\graphics\Img\Frame.bmp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.974,=E:\YandexDisk\Проекты\Simulator\Dll\Dev\Counter\graphics\Img\Res0.bmp</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.412,=E:\YandexDisk\Проекты\Simulator\Units\Other\unitClasses4Devices.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.772,E:\YandexDisk\Проекты\Simulator\Dll\Dev\Counter\sdevCounter.dproj=C:\Users\Анатолий\Documents\Embarcadero\Studio\Projects\sdevCounter.dproj</Transaction>
+  </Transactions>
+</BorlandProject>
